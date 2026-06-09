@@ -18,6 +18,21 @@ must happen through documented HTTP APIs or generated report artifacts.
 | TradingAgents | `/Users/yongnahwa/Desktop/TradingAgents` | Deep ticker and portfolio-style agent analysis with markdown report output |
 | US Equity News Daily Analysis | `/Users/yongnahwa/Desktop/US-equity-news-daily-analysis` | Daily US equity news, SEC, event analysis, and static HTML report pipeline |
 
+## Control Repo Operating Model
+
+Use this repository for stack-level planning and orchestration:
+
+- architecture boundaries
+- service catalog and ports
+- HTTP integration contracts
+- local runbooks
+- Research Hub
+- future Vultr deployment plans
+
+Use each sibling project's own repository and Codex session for code changes
+inside that project. After a sibling project changes an API, port, or env
+contract, update this repository's catalog and docs.
+
 ## Architecture Rules
 
 - Do not merge sibling repositories into this directory.
@@ -26,22 +41,53 @@ must happen through documented HTTP APIs or generated report artifacts.
   modules as an integration mechanism.
 - Use HTTP APIs between services when live integration is needed.
 - Keep generated reports as explicit artifacts, not hidden coupling.
-- The future Research Hub v1 is only a link and health-status entry point.
+- Research Hub v1 is only a link and health-status entry point.
 - Do not iframe sibling frontends.
 - Do not combine sibling frontends into one application.
 - Prefer Docker Compose plus a reverse proxy for Vultr deployment.
 - Do not use Kubernetes or k8s for this stack.
 
-## Phase 1 Contents
+## Research Hub v1
 
-This phase creates documentation and machine-readable metadata only:
+Run the local control-plane dashboard:
+
+```bash
+python3 -m research_hub --host 127.0.0.1 --port 3030
+```
+
+Open:
+
+```text
+http://127.0.0.1:3030
+```
+
+API endpoints:
+
+- `GET /api/services`
+- `GET /api/health`
+
+Research Hub reads [catalog/services.json](catalog/services.json), serves
+service links, and performs best-effort backend health checks. It does not
+start sibling services.
+
+## Contents
+
+This repository contains:
 
 - [Service catalog](docs/service-catalog.md)
 - [Integration map](docs/integration-map.md)
 - [Ports](docs/ports.md)
 - [Local start plan](docs/local-start-plan.md)
+- [Operating model](docs/operating-model.md)
+- [Roadmap](docs/roadmap.md)
 - [Vultr deployment plan](docs/vultr-deployment-plan.md)
 - [Machine-readable catalog](catalog/services.json)
+- [Research Hub](research_hub/)
 
-No services are started by this repository. Git history is used only for this
-orchestration layer when explicitly requested.
+Validate this repo:
+
+```bash
+python3 scripts/check.py
+```
+
+Git history is used only for this orchestration layer.

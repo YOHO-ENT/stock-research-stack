@@ -4,6 +4,19 @@ This catalog describes the projects managed by `research-stack` during Phase 1.
 It is documentation for orchestration only; it does not move code or own the
 runtime state of the sibling projects.
 
+## Research Hub
+
+- Path: `/Users/yongnahwa/Desktop/research-stack`
+- Role: unified local entry point with service links and health status.
+- Local dashboard/API: `http://127.0.0.1:3030`
+- Useful endpoints:
+  - `GET /api/services`
+  - `GET /api/health`
+- Boundaries:
+  - Does not start sibling services.
+  - Does not iframe sibling frontends.
+  - Performs best-effort local health checks only.
+
 ## py-moomoo-api
 
 - Path: `/Users/yongnahwa/Desktop/py-moomoo-api`

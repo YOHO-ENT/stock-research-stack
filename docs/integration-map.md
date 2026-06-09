@@ -12,7 +12,7 @@ not a preferred integration mechanism.
 | Market Data Lab -> Firn | Target | Market Data Lab should sync watchlist/universe data to Firn through a future HTTP API. |
 | US Equity News -> Firn | Current adapter shape | External audit uses outbound `POST {FIRN_AUDIT_BASE_URL}/audit-report`. |
 | TradingAgents -> Market Data Lab | Target | TradingAgents should select tickers from the Market Data Lab universe via HTTP. |
-| Research Hub -> all services | Target | Research Hub links to services and checks health only. |
+| Research Hub -> all services | Current | Research Hub links to services and checks health only. |
 
 ## Explicit Non-Flows
 
@@ -31,7 +31,7 @@ not a preferred integration mechanism.
   transitional and manual; research-stack does not enable it by default.
 - TradingAgents does not yet consume Market Data Lab universes through a
   documented HTTP flow.
-- Research Hub does not exist yet; port `3030` is reserved.
+- Research Hub v1 exists locally on port `3030`.
 - Vultr deployment needs a future Compose file and reverse proxy config.
 - US Equity News has a Streamlit dashboard and CLI pipeline, not a FastAPI
   health endpoint.

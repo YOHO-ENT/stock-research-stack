@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Research Hub</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">research-stack</p>
+        <h1>Research Hub</h1>
+      </div>
+      <div class="actions">
+        <span id="summary" class="summary">Loading</span>
+        <button id="refresh" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="status-strip" aria-label="Status totals">
+        <div><span id="ok-count">0</span><small>ok</small></div>
+        <div><span id="down-count">0</span><small>down</small></div>
+        <div><span id="skipped-count">0</span><small>skipped</small></div>
+        <div><span id="checked-at">Never</span><small>last check</small></div>
+      </section>
+
+      <section class="table-section" aria-label="Service health">
+        <table>
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Latency</th>
+              <th>URL</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody id="services-body">
+            <tr>
+              <td colspan="6" class="empty">Loading services</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

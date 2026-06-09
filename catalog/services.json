@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stack": "research-stack",
-  "phase": "phase-1-docs-orchestration",
+  "phase": "phase-2-research-hub-v1",
   "principles": [
     "top-level orchestration only",
     "sibling projects remain independently maintained",
@@ -15,10 +15,10 @@
       "id": "research-hub",
       "name": "Research Hub",
       "project_path": "/Users/yongnahwa/Desktop/research-stack",
-      "role": "Future unified entry point with links and service health status.",
-      "component_type": "future-web-ui",
+      "role": "Unified local entry point with service links and health status.",
+      "component_type": "stdlib-python-web-ui",
       "local_url": "http://127.0.0.1:3030",
-      "health_check_url": null,
+      "health_check_url": "http://127.0.0.1:3030/api/services",
       "dependencies": [
         "moomoo-account-web",
         "market-data-lab-api",
@@ -27,7 +27,8 @@
         "us-equity-news-dashboard"
       ],
       "notes": [
-        "Reserved for a future v1.",
+        "Implemented as a stdlib-only local Python server.",
+        "Run with python3 -m research_hub --host 127.0.0.1 --port 3030.",
         "Must not iframe sibling frontends.",
         "Must not merge sibling UI code."
       ]
@@ -162,7 +163,7 @@
       "id": "us-equity-news-pipeline",
       "name": "US Equity News Pipeline",
       "project_path": "/Users/yongnahwa/Desktop/US-equity-news-daily-analysis",
-            "role": "Daily US equity news, SEC, event analysis, and static HTML report pipeline.",
+      "role": "Daily US equity news, SEC, event analysis, and static HTML report pipeline.",
       "component_type": "python-cli-pipeline",
       "local_url": null,
       "health_check_url": null,

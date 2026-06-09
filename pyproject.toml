@@ -1,0 +1,14 @@
+[project]
+name = "research-stack"
+version = "0.1.0"
+description = "Control repo and Research Hub for the local research stack."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+research-hub = "research_hub.__main__:main"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"

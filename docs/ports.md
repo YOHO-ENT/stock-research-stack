@@ -4,7 +4,7 @@ This file is the Phase 1 source of truth for local port planning.
 
 | Component | Planned URL | Notes |
 |---|---:|---|
-| Research Hub | `http://127.0.0.1:3030` | Reserved for future link and health-status page. |
+| Research Hub | `http://127.0.0.1:3030` | Local link and health-status page. |
 | moomoo Account Web | `http://127.0.0.1:8501` | Existing py-moomoo-api dashboard. |
 | moomoo OpenD gateway | `127.0.0.1:11111` | Local gateway, not HTTP. |
 | Market Data Lab API | `http://127.0.0.1:8010` | Existing default API port. |
