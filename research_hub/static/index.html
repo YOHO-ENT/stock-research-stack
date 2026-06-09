@@ -8,45 +8,121 @@
     <link rel="stylesheet" href="/static/styles.css">
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">research-stack</p>
-        <h1>Research Hub</h1>
-      </div>
-      <div class="actions">
-        <span id="summary" class="summary">Loading</span>
-        <button id="refresh" type="button">Refresh</button>
-      </div>
-    </header>
+    <button
+      id="mobile-nav-toggle"
+      class="mobile-nav-toggle"
+      type="button"
+      aria-label="Toggle navigation"
+      aria-controls="sidebar"
+      aria-expanded="false"
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M4 7h16M4 12h16M4 17h16" />
+      </svg>
+    </button>
 
-    <main>
-      <section class="status-strip" aria-label="Status totals">
-        <div><span id="ok-count">0</span><small>ok</small></div>
-        <div><span id="down-count">0</span><small>down</small></div>
-        <div><span id="skipped-count">0</span><small>skipped</small></div>
-        <div><span id="checked-at">Never</span><small>last check</small></div>
-      </section>
+    <div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
 
-      <section class="table-section" aria-label="Service health">
-        <table>
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Latency</th>
-              <th>URL</th>
-              <th>Role</th>
-            </tr>
-          </thead>
-          <tbody id="services-body">
-            <tr>
-              <td colspan="6" class="empty">Loading services</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
+    <div class="app-shell">
+      <aside id="sidebar" class="sidebar" aria-label="Research Hub navigation">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>Research Hub</span>
+        </a>
+
+        <nav class="nav-list" aria-label="Service views">
+          <button class="nav-item" type="button" data-view="all">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6ZM13 6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2V6ZM4 15a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3ZM13 15a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-3Z" />
+            </svg>
+            <span>All Services</span>
+            <small id="all-count">0</small>
+          </button>
+          <button class="nav-item is-active" type="button" data-view="ui">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 13.5v-8ZM8 21h8M10 16v5M14 16v5" />
+            </svg>
+            <span>UI & Dashboards</span>
+            <small id="ui-count">0</small>
+          </button>
+          <button class="nav-item" type="button" data-view="backend">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v1A2.5 2.5 0 0 1 16.5 10h-9A2.5 2.5 0 0 1 5 7.5v-1ZM5 16.5A2.5 2.5 0 0 1 7.5 14h9a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 17.5v-1ZM8 7h.01M8 17h.01M11 7h5M11 17h5" />
+            </svg>
+            <span>Backends</span>
+            <small id="backend-count">0</small>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer" aria-label="Stack health summary">
+          <div class="ridge" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="mini-stat">
+            <span>Reachable</span>
+            <strong id="sidebar-ok-count">0</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Needs attention</span>
+            <strong id="sidebar-down-count">0</strong>
+          </div>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">research-stack</p>
+            <h1 id="view-title">All Services</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="overall-health">
+              <span id="overall-dot" class="health-dot unknown" aria-hidden="true"></span>
+              <span id="summary">Loading</span>
+            </div>
+            <button id="refresh" class="refresh-button" type="button">Refresh</button>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <section class="metrics-grid" aria-label="Status totals">
+            <article class="metric-card">
+              <span id="ok-count">0</span>
+              <small>ok</small>
+            </article>
+            <article class="metric-card">
+              <span id="down-count">0</span>
+              <small>down</small>
+            </article>
+            <article class="metric-card">
+              <span id="skipped-count">0</span>
+              <small>skipped</small>
+            </article>
+            <article class="metric-card">
+              <span id="checked-at">Never</span>
+              <small>last check</small>
+            </article>
+          </section>
+
+          <section class="service-panel" aria-label="Service health">
+            <div class="panel-header">
+              <div>
+                <h2>Service Health</h2>
+                <p id="view-description">All orchestrated local services.</p>
+              </div>
+              <span id="visible-count" class="panel-count">0 services</span>
+            </div>
+            <div id="services-body" class="service-list">
+              <div class="empty">Loading services</div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
 
     <script src="/static/app.js"></script>
   </body>
