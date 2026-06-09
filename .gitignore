@@ -1,0 +1,27 @@
+# Local env and secrets
+.env
+.env.*
+!.env.example
+
+# Logs, caches, and generated outputs
+logs/
+*.log
+.cache/
+cache/
+tmp/
+reports/
+daily_reports/
+generated/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python and Node transient files, if future tooling is added
+__pycache__/
+*.py[cod]
+node_modules/
+dist/
+build/

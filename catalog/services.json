@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "stack": "research-stack",
+  "phase": "phase-1-docs-orchestration",
+  "principles": [
+    "top-level orchestration only",
+    "sibling projects remain independently maintained",
+    "cross-project live integration uses HTTP APIs",
+    "no iframe composition",
+    "no code merging",
+    "no Kubernetes or k8s"
+  ],
+  "services": [
+    {
+      "id": "research-hub",
+      "name": "Research Hub",
+      "project_path": "/Users/yongnahwa/Desktop/research-stack",
+      "role": "Future unified entry point with links and service health status.",
+      "component_type": "future-web-ui",
+      "local_url": "http://127.0.0.1:3030",
+      "health_check_url": null,
+      "dependencies": [
+        "moomoo-account-web",
+        "market-data-lab-api",
+        "firn-api",
+        "tradingagents-api",
+        "us-equity-news-dashboard"
+      ],
+      "notes": [
+        "Reserved for a future v1.",
+        "Must not iframe sibling frontends.",
+        "Must not merge sibling UI code."
+      ]
+    },
+    {
+      "id": "moomoo-opend",
+      "name": "moomoo OpenD Gateway",
+      "project_path": "/Users/yongnahwa/Desktop/py-moomoo-api",
+      "role": "Local moomoo gateway used by py-moomoo-api for read-only account and market access.",
+      "component_type": "local-gateway",
+      "local_url": "tcp://127.0.0.1:11111",
+      "health_check_url": null,
+      "dependencies": [],
+      "notes": [
+        "Must be started and logged in outside research-stack.",
+        "research-stack does not manage trading credentials."
+      ]
+    },
+    {
+      "id": "moomoo-account-web",
+      "name": "moomoo Account Web",
+      "project_path": "/Users/yongnahwa/Desktop/py-moomoo-api",
+      "role": "Read-only account, positions, watchlist, and research-universe export source.",
+      "component_type": "fastapi-web-dashboard",
+      "local_url": "http://127.0.0.1:8501",
+      "health_check_url": "http://127.0.0.1:8501/api/watchlists/status",
+      "dependencies": [
+        "moomoo-opend",
+        "market-data-lab-api"
+      ],
+      "notes": [
+        "Exports research universe at GET /api/research-universe/export.",
+        "May call Market Data Lab read-only snapshot and status endpoints.",
+        "Watchlists default to local cache and require manual OpenD sync in the source project."
+      ]
+    },
+    {
+      "id": "market-data-lab-api",
+      "name": "Market Data Lab API",
+      "project_path": "/Users/yongnahwa/Desktop/market-data-lab",
+      "role": "Market history, technical indicators, chart data, screen data, and universe center.",
+      "component_type": "fastapi-api",
+      "local_url": "http://127.0.0.1:8010",
+      "health_check_url": "http://127.0.0.1:8010/health",
+      "dependencies": [
+        "moomoo-account-web"
+      ],
+      "notes": [
+        "Reads moomoo via GET /api/research-universe/export.",
+        "Must not read moomoo cache files directly.",
+        "HTTP Firn watchlist sync is the target integration direction."
+      ]
+    },
+    {
+      "id": "market-data-lab-ui",
+      "name": "Market Data Lab UI",
+      "project_path": "/Users/yongnahwa/Desktop/market-data-lab",
+      "role": "Charts, screen, universe, and refresh visibility frontend.",
+      "component_type": "vite-web-ui",
+      "local_url": "http://127.0.0.1:3020",
+      "health_check_url": "http://127.0.0.1:3020",
+      "dependencies": [
+        "market-data-lab-api"
+      ],
+      "notes": [
+        "Vite development UI proxies API requests to Market Data Lab API."
+      ]
+    },
+    {
+      "id": "firn-api",
+      "name": "Firn API",
+      "project_path": "/Users/yongnahwa/Desktop/Firn",
+      "role": "Audit, evidence, knowledge base, claim verification, digest, and research API.",
+      "component_type": "fastapi-api",
+      "local_url": "http://127.0.0.1:8000",
+      "health_check_url": "http://127.0.0.1:8000/api/health",
+      "dependencies": [],
+      "notes": [
+        "Authenticated routes require Firn auth state.",
+        "Research Hub health checks should use /api/health.",
+        "Future Market Data Lab watchlist sync should use HTTP rather than file coupling."
+      ]
+    },
+    {
+      "id": "firn-ui",
+      "name": "Firn UI",
+      "project_path": "/Users/yongnahwa/Desktop/Firn",
+      "role": "Analysis Theater, Digest Theater, KB Explorer, and audit citation frontend.",
+      "component_type": "nextjs-web-ui",
+      "local_url": "http://127.0.0.1:3000",
+      "health_check_url": "http://127.0.0.1:3000",
+      "dependencies": [
+        "firn-api"
+      ],
+      "notes": [
+        "Next.js frontend should stay independent."
+      ]
+    },
+    {
+      "id": "tradingagents-api",
+      "name": "TradingAgents API",
+      "project_path": "/Users/yongnahwa/Desktop/TradingAgents",
+      "role": "Deep ticker and portfolio-style agent analysis API with markdown report output.",
+      "component_type": "fastapi-api",
+      "local_url": "http://127.0.0.1:8002",
+      "health_check_url": "http://127.0.0.1:8002/health",
+      "dependencies": [
+        "market-data-lab-api"
+      ],
+      "notes": [
+        "Project default API port is 8000; research-stack reserves 8002 to avoid Firn.",
+        "Future ticker selection should come from Market Data Lab via HTTP.",
+        "Reports are markdown artifacts exposed by the TradingAgents API."
+      ]
+    },
+    {
+      "id": "tradingagents-ui",
+      "name": "TradingAgents UI",
+      "project_path": "/Users/yongnahwa/Desktop/TradingAgents",
+      "role": "TradingAgents web console and markdown report browser.",
+      "component_type": "vite-web-ui",
+      "local_url": "http://127.0.0.1:5173",
+      "health_check_url": "http://127.0.0.1:5173",
+      "dependencies": [
+        "tradingagents-api"
+      ],
+      "notes": [
+        "Set VITE_API_BASE_URL to http://127.0.0.1:8002 in research-stack local runs."
+      ]
+    },
+    {
+      "id": "us-equity-news-pipeline",
+      "name": "US Equity News Pipeline",
+      "project_path": "/Users/yongnahwa/Desktop/US-equity-news-daily-analysis",
+            "role": "Daily US equity news, SEC, event analysis, and static HTML report pipeline.",
+      "component_type": "python-cli-pipeline",
+      "local_url": null,
+      "health_check_url": null,
+      "dependencies": [
+        "firn-api"
+      ],
+      "notes": [
+        "No FastAPI service was found in phase-1 research.",
+        "Firn-compatible external audit uses POST {FIRN_AUDIT_BASE_URL}/audit-report.",
+        "Static reports are generated by the US Equity News project."
+      ]
+    },
+    {
+      "id": "us-equity-news-dashboard",
+      "name": "US Equity News Dashboard",
+      "project_path": "/Users/yongnahwa/Desktop/US-equity-news-daily-analysis",
+      "role": "Streamlit dashboard for news/report visibility.",
+      "component_type": "streamlit-dashboard",
+      "local_url": "http://127.0.0.1:8502",
+      "health_check_url": "http://127.0.0.1:8502",
+      "dependencies": [
+        "us-equity-news-pipeline"
+      ],
+      "notes": [
+        "Project compose defaults to 8501; research-stack reserves 8502 to avoid moomoo Account Web."
+      ]
+    }
+  ]
+}
