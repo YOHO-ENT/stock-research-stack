@@ -102,18 +102,23 @@ runtime state of the sibling projects.
   - Future ticker selection should come from Market Data Lab via HTTP.
   - Markdown reports remain generated and served by TradingAgents.
 
-## US Equity News Daily Analysis
+## DailyBrief
 
-- Path: `/Users/yongnahwa/Desktop/US-equity-news-daily-analysis`
-- Role: daily US equity news, SEC, event analysis, and static HTML report
-  pipeline.
-- Planned dashboard: `http://127.0.0.1:8502`
+- Path: `/Users/yongnahwa/Desktop/DailyBrief`
+- Role: local-first Python AI news and markets digest generator with static
+  HTML report output.
+- Local service URL: none.
 - Useful commands in the source project:
-  - `python -m app.jobs.run_daily_brief`
-  - `python -m app.jobs.run_pipeline`
-  - `streamlit run app/dashboard/streamlit_app.py`
-  - `scripts/run_firn_audit.py`
+  - `dailybrief daily`
+  - `dailybrief dry-run`
+  - `dailybrief build-site`
+  - `dailybrief open [date]`
+  - `dailybrief run-scheduled`
+  - `dailybrief deploy [date]`
 - Boundaries:
-  - No FastAPI service was found during Phase 1 research.
-  - External Firn audit is outbound: `POST {FIRN_AUDIT_BASE_URL}/audit-report`.
-  - Static reports and databases remain owned by this source project.
+  - DailyBrief has no database, web server, web framework, or frontend service.
+  - Reports are static files under `daily_reports/<YYYY-MM-DD>/`.
+  - Research Hub should show this as a backend/static-report pipeline, not a
+    dashboard link, until a public static report URL is intentionally added.
+  - Generated reports, logs, schedules, and deployment credentials remain owned
+    by DailyBrief.

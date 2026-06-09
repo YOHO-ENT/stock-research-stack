@@ -16,7 +16,7 @@ must happen through documented HTTP APIs or generated report artifacts.
 | market-data-lab | `/Users/yongnahwa/Desktop/market-data-lab` | Market history, technical indicators, chart data, and research universe center |
 | Firn | `/Users/yongnahwa/Desktop/Firn` | Audit, evidence, knowledge base, claim verification, and deeper research memory |
 | TradingAgents | `/Users/yongnahwa/Desktop/TradingAgents` | Deep ticker and portfolio-style agent analysis with markdown report output |
-| US Equity News Daily Analysis | `/Users/yongnahwa/Desktop/US-equity-news-daily-analysis` | Daily US equity news, SEC, event analysis, and static HTML report pipeline |
+| DailyBrief | `/Users/yongnahwa/Desktop/DailyBrief` | Local-first AI news and markets digest generator with static HTML report output |
 
 ## Control Repo Operating Model
 

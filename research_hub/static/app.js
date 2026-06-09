@@ -155,18 +155,21 @@ function getHealth(id) {
 }
 
 function serviceRow(service, health) {
-  const localUrl = service.local_url || "No URL";
+  const displayUrl = service.public_url || service.local_url || "No URL";
+  const clickableUrl = service.public_url || service.local_url;
   const role = service.role || "";
   const componentType = service.component_type || "-";
   const healthMessage = health.message || "";
-  const urlCell = service.local_url && service.local_url.startsWith("http")
-    ? `<a class="open-link" href="${escapeAttr(service.local_url)}" target="_blank" rel="noopener noreferrer">Open</a><span class="muted" title="${escapeAttr(service.local_url)}">${escapeHtml(service.local_url)}</span>`
-    : `<span class="muted" title="${escapeAttr(localUrl)}">${escapeHtml(localUrl)}</span>`;
+  const clickable = clickableUrl && clickableUrl.startsWith("http");
+  const urlCell = `<span class="muted" title="${escapeAttr(displayUrl)}">${escapeHtml(displayUrl)}</span>`;
   const latency = Number.isInteger(health.latency_ms) ? `${health.latency_ms} ms` : "-";
   const message = healthMessage ? `<span class="status-message" title="${escapeAttr(healthMessage)}">${escapeHtml(healthMessage)}</span>` : "";
   const status = health.status || "unknown";
   return `
-    <article class="service-row">
+    <article
+      class="service-row${clickable ? " is-clickable" : ""}"
+      ${clickable ? `data-url="${escapeAttr(clickableUrl)}" role="link" tabindex="0" aria-label="Visit ${escapeAttr(service.name || service.id)}"` : ""}
+    >
       <div class="service-title">
         <span class="service-name">${escapeHtml(service.name || service.id)}</span>
         <span class="service-id">${escapeHtml(service.id || "")}</span>
@@ -238,6 +241,20 @@ for (const button of navButtons) {
 
 mobileNavToggle.addEventListener("click", () => openMobileNav(!sidebar.classList.contains("is-open")));
 sidebarBackdrop.addEventListener("click", () => openMobileNav(false));
+body.addEventListener("click", (event) => {
+  const row = event.target.closest(".service-row.is-clickable");
+  if (row?.dataset.url) {
+    window.open(row.dataset.url, "_blank", "noopener,noreferrer");
+  }
+});
+body.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const row = event.target.closest(".service-row.is-clickable");
+  if (row?.dataset.url) {
+    event.preventDefault();
+    window.open(row.dataset.url, "_blank", "noopener,noreferrer");
+  }
+});
 
 loadServices()
   .then(refreshHealth)

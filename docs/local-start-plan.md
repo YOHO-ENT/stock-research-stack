@@ -105,18 +105,24 @@ http://127.0.0.1:8002
 http://127.0.0.1:5173
 ```
 
-## 7. Start US Equity News Dashboard
+## 7. Run DailyBrief
 
-From `/Users/yongnahwa/Desktop/US-equity-news-daily-analysis`:
+DailyBrief is not a long-running service. It has no local web server or
+frontend to start, so Research Hub should show it as `skipped` unless a future
+report URL or health endpoint is added.
+
+From `/Users/yongnahwa/Desktop/DailyBrief`:
 
 ```bash
-streamlit run app/dashboard/streamlit_app.py --server.address=127.0.0.1 --server.port=8502
+dailybrief dry-run
+dailybrief daily
+dailybrief open
 ```
 
-Expected URL:
+Static reports are written under:
 
 ```text
-http://127.0.0.1:8502
+daily_reports/<YYYY-MM-DD>/
 ```
 
 Research Hub should show offline sibling services as `down` or `skipped` until

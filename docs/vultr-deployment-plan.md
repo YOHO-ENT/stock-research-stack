@@ -20,7 +20,7 @@ reverse-proxy config, systemd units, images, servers, DNS records, or secrets.
 | `market.example.com` | Market Data Lab UI/API | UI plus API route. |
 | `firn.example.com` | Firn UI/API | Auth, KB, audit, analysis. |
 | `agents.example.com` | TradingAgents UI/API | Web console and markdown reports. |
-| `news.example.com` | US Equity News static reports/dashboard | Static report hosting first; dashboard optional. |
+| `brief.example.com` | DailyBrief static reports | Static report hosting first; no app server required. |
 
 ## Compose Strategy
 
@@ -41,9 +41,8 @@ reverse-proxy config, systemd units, images, servers, DNS records, or secrets.
 - `Firn` has Dockerfiles for API and UI, but no top-level Compose file.
 - `TradingAgents` has a Dockerfile and Compose for CLI/Ollama, but not for its
   API plus frontend web console.
-- `US-equity-news-daily-analysis` has Docker and Compose for local CLI,
-  pipeline, and dashboard use; production scheduling still needs a stack-level
-  decision.
+- `DailyBrief` is Python-only: no database, server, or frontend framework. It
+  can run via scheduler/GitHub Actions and publish static reports.
 
 ## Deployment Acceptance For A Later Phase
 

@@ -10,7 +10,7 @@ not a preferred integration mechanism.
 | moomoo Account Web -> Market Data Lab | Current | py-moomoo-api may call Market Data Lab read-only endpoints for status and snapshots. |
 | Market Data Lab -> moomoo Account Web | Current | Market Data Lab reads `GET /api/research-universe/export`. It must not read moomoo cache files. |
 | Market Data Lab -> Firn | Target | Market Data Lab should sync watchlist/universe data to Firn through a future HTTP API. |
-| US Equity News -> Firn | Current adapter shape | External audit uses outbound `POST {FIRN_AUDIT_BASE_URL}/audit-report`. |
+| DailyBrief -> generated reports | Current | DailyBrief writes static HTML/JSON report artifacts under its own `daily_reports/` directory. |
 | TradingAgents -> Market Data Lab | Target | TradingAgents should select tickers from the Market Data Lab universe via HTTP. |
 | Research Hub -> all services | Current | Research Hub links to services and checks health only. |
 
@@ -22,7 +22,7 @@ not a preferred integration mechanism.
 - market-data-lab must not read moomoo cache files.
 - TradingAgents must not read Market Data Lab internal files for ticker
   selection.
-- US Equity News reports must not be treated as hidden inputs to unrelated
+- DailyBrief reports must not be treated as hidden inputs to unrelated
   services unless an explicit artifact handoff is documented.
 
 ## Current Gaps
@@ -33,5 +33,5 @@ not a preferred integration mechanism.
   documented HTTP flow.
 - Research Hub v1 exists locally on port `3030`.
 - Vultr deployment needs a future Compose file and reverse proxy config.
-- US Equity News has a Streamlit dashboard and CLI pipeline, not a FastAPI
-  health endpoint.
+- DailyBrief has a Python CLI/static report pipeline, not a web server,
+  frontend, or FastAPI health endpoint.

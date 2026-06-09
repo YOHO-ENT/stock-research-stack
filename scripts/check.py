@@ -35,8 +35,9 @@ EXPECTED_FILES = {
 }
 
 FORBIDDEN_PATTERNS = {
-    "/Users/yongnahwa/Desktop/Daily" + "Brief",
-    "Daily" + "Brief",
+    "/Users/yongnahwa/Desktop/US-" + "equity-" + "news-" + "daily-analysis",
+    "US Equity " + "News",
+    "us-" + "equity-" + "news",
     "<" + "ifr" + "ame",
 }
 

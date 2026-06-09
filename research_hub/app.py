@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 3030
@@ -22,12 +22,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = REPO_ROOT / "catalog" / "services.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
+
+class NoRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
+        return None
+
 PUBLIC_SERVICE_FIELDS = {
     "id",
     "name",
     "role",
     "component_type",
     "local_url",
+    "public_url",
     "health_check_url",
     "dependencies",
     "notes",
@@ -112,13 +118,20 @@ def check_target(service: dict[str, Any]) -> str | None:
 
 def check_http(url: str, timeout_seconds: float) -> dict[str, Any]:
     request = Request(url, headers={"User-Agent": "research-hub/0.1"})
+    opener = build_opener(NoRedirectHandler)
     try:
-        with urlopen(request, timeout=timeout_seconds) as response:  # noqa: S310 - local operator URLs only
+        with opener.open(request, timeout=timeout_seconds) as response:  # noqa: S310 - local operator URLs only
             status_code = int(getattr(response, "status", response.getcode()))
             # Read a small amount so servers complete the response without loading
             # large HTML pages into memory.
             response.read(512)
     except HTTPError as exc:
+        if 300 <= exc.code < 400:
+            return {
+                "status": "ok",
+                "status_code": exc.code,
+                "message": f"redirect {exc.code}",
+            }
         return {
             "status": "down",
             "status_code": exc.code,

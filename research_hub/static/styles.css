@@ -318,8 +318,7 @@ h1 {
   background: var(--color-text-secondary);
 }
 
-.refresh-button,
-.open-link {
+.refresh-button {
   min-height: 32px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -334,8 +333,7 @@ h1 {
   transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
 }
 
-.refresh-button:hover,
-.open-link:hover {
+.refresh-button:hover {
   border-color: rgba(123, 143, 168, 0.5);
   color: var(--color-text-primary);
 }
@@ -447,6 +445,20 @@ h1 {
 
 .service-row:hover {
   background: rgba(255, 255, 255, 0.025);
+}
+
+.service-row.is-clickable {
+  cursor: pointer;
+}
+
+.service-row.is-clickable:hover,
+.service-row.is-clickable:focus-visible {
+  background: rgba(0, 212, 170, 0.055);
+}
+
+.service-row.is-clickable:focus-visible {
+  outline: 1px solid rgba(0, 212, 170, 0.55);
+  outline-offset: -1px;
 }
 
 .service-title {
@@ -586,21 +598,6 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.open-link {
-  flex: 0 0 auto;
-  min-height: 26px;
-  padding: 3px 10px;
-  color: var(--color-accent);
-  border-color: rgba(0, 212, 170, 0.3);
-  background: rgba(0, 212, 170, 0.06);
-}
-
-.open-link:hover {
-  color: var(--color-background);
-  border-color: var(--color-accent);
-  background: var(--color-accent);
 }
 
 .role {
