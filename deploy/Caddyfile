@@ -31,11 +31,6 @@
 		reverse_proxy tradingagents-ui:80
 	}
 
-	redir /moomoo /moomoo/
-	handle_path /moomoo/* {
-		reverse_proxy moomoo-account-web:8501
-	}
-
 	redir /brief /brief/
 
 	handle_path /brief/* {

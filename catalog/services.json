@@ -21,7 +21,6 @@
       "health_check_url": "http://127.0.0.1:3030/api/services",
       "production_visible": true,
       "dependencies": [
-        "moomoo-account-web",
         "market-data-lab-api",
         "firn-api",
         "tradingagents-api",
@@ -66,7 +65,7 @@
         "Exports research universe at GET /api/research-universe/export.",
         "May call Market Data Lab read-only snapshot and status endpoints.",
         "Watchlists default to local cache and require manual OpenD sync in the source project.",
-        "Vultr deployment exposes Account Web behind Basic Auth at /moomoo/ but does not expose OpenD 11111."
+        "Local-only service. Vultr production does not run Account Web, route /moomoo/, store moomoo cache, or expose OpenD 11111."
       ]
     },
     {
@@ -83,6 +82,7 @@
       "notes": [
         "Reads moomoo via GET /api/research-universe/export.",
         "Must not read moomoo cache files directly.",
+        "Vultr production sets MOOMOO_ACCOUNT_WEB_URL empty so moomoo preview/sync fails fast instead of reaching account services.",
         "HTTP Firn watchlist sync is implemented locally through FIRN_API_BASE_URL and documented in docs/http-contracts.md.",
         "Vultr deployment routes API/UI through /market/."
       ]

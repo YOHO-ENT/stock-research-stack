@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.api
     restart: unless-stopped
     environment:
-      MOOMOO_ACCOUNT_WEB_URL: http://moomoo-account-web:8501
+      MOOMOO_ACCOUNT_WEB_URL: ${MOOMOO_ACCOUNT_WEB_URL:-}
       FIRN_API_BASE_URL: http://firn-api:8000
       FIRN_API_TOKEN: ${FIRN_API_TOKEN:-}
       FIRN_API_TIMEOUT_SECONDS: ${FIRN_API_TIMEOUT_SECONDS:-10}
@@ -144,33 +144,6 @@ services:
       tradingagents-api:
         condition: service_healthy
 
-  moomoo-account-web:
-    build:
-      context: ${PY_MOOMOO_API_DIR:-../py-moomoo-api}
-      dockerfile: Dockerfile.account-web
-    restart: unless-stopped
-    environment:
-      MOOMOO_ACCOUNT_WEB_CACHE_DIR: /data/account_web
-      MOOMOO_MARKET_DATA_API_URL: http://market-data-lab-api:8010
-      MOOMOO_MARKET_DATA_UI_URL: /market/
-      MOOMOO_ACCOUNT_WEB_ALLOW_REMOTE: ${MOOMOO_ACCOUNT_WEB_ALLOW_REMOTE:-0}
-    volumes:
-      - moomoo_account_web_data:/data/account_web
-    expose:
-      - "8501"
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/api/watchlists/status', timeout=3).read()",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-
   research-hub:
     build:
       context: .
@@ -200,8 +173,6 @@ services:
       TRADINGAGENTS_API_PUBLIC_HEALTH_CHECK_URL: ${TRADINGAGENTS_API_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/agents/health}
       TRADINGAGENTS_UI_PUBLIC_URL: ${TRADINGAGENTS_UI_PUBLIC_URL:-http://149.28.156.116/agents/}
       TRADINGAGENTS_UI_PUBLIC_HEALTH_CHECK_URL: ${TRADINGAGENTS_UI_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/agents/}
-      MOOMOO_ACCOUNT_WEB_PUBLIC_URL: ${MOOMOO_ACCOUNT_WEB_PUBLIC_URL:-http://149.28.156.116/moomoo/}
-      MOOMOO_ACCOUNT_WEB_PUBLIC_HEALTH_CHECK_URL: ${MOOMOO_ACCOUNT_WEB_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/moomoo/api/watchlists/status}
     expose:
       - "3030"
     volumes:
@@ -212,8 +183,6 @@ services:
       firn-api:
         condition: service_healthy
       tradingagents-api:
-        condition: service_healthy
-      moomoo-account-web:
         condition: service_healthy
     healthcheck:
       test:
@@ -240,8 +209,6 @@ services:
         condition: service_started
       tradingagents-ui:
         condition: service_started
-      moomoo-account-web:
-        condition: service_healthy
     environment:
       HUB_AUTH_USER: ${HUB_AUTH_USER:?set HUB_AUTH_USER in .env}
       HUB_AUTH_HASH: ${HUB_AUTH_HASH:?set HUB_AUTH_HASH in .env}
@@ -262,4 +229,3 @@ volumes:
   firn_logs:
   firn_config:
   tradingagents_data:
-  moomoo_account_web_data:

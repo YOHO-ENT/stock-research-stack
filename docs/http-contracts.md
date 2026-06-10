@@ -19,6 +19,10 @@ runtime state, tests, secrets, and release workflow.
 
 Status: current contract.
 
+Deployment boundary: this contract is local-only. Vultr production does not run
+moomoo Account Web, does not route `/moomoo/`, and leaves
+`MOOMOO_ACCOUNT_WEB_URL` empty so account sync cannot run on the VPS.
+
 Purpose: Market Data Lab imports the read-only moomoo research universe through
 the moomoo Account Web API.
 

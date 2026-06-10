@@ -96,10 +96,10 @@ temporary Basic Auth and routes:
 - `/market/` to Market Data Lab UI/API
 - `/firn/` to Firn UI/API
 - `/agents/` to TradingAgents UI/API
-- `/moomoo/` to py-moomoo Account Web
 
 DailyBrief remains a systemd timer/publisher, not a Compose service. moomoo
-OpenD `11111` is not exposed publicly.
+Account Web and OpenD stay local-only: Vultr does not run py-moomoo-api, route
+`/moomoo/`, store moomoo cache, or expose OpenD `11111`.
 
 See [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md).
 See [DailyBrief production runbook](docs/dailybrief-production-runbook.md) for

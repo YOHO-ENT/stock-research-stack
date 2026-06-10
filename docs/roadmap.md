@@ -51,9 +51,10 @@ Status: implemented in this repository as a local control-plane capability.
 - Keep secrets in private env files.
 - Document services that are intentionally not containerized yet.
 
-Status: implemented for the managed deployment set. Research Hub/Caddy,
-Market Data Lab API/UI, Firn API/UI, TradingAgents API/UI, and py-moomoo
-Account Web have Compose definitions while DailyBrief remains systemd.
+Status: implemented for the safe production deployment set. Research
+Hub/Caddy, Market Data Lab API/UI, Firn API/UI, and TradingAgents API/UI have
+Compose definitions while DailyBrief remains systemd. py-moomoo-api is
+documented as local-only and intentionally excluded from Vultr production.
 
 ## Phase 5: Vultr Deployment
 
@@ -66,5 +67,5 @@ Account Web have Compose definitions while DailyBrief remains systemd.
 Status: DailyBrief systemd publishing, `/brief/` static report serving, and
 production smoke checks are implemented. Expanded IP-only Compose deployment
 for managed sibling services is implemented in the control layer. TLS, DNS,
-stronger access control, OpenD production exposure decisions, and broader backup
+stronger access control, moomoo local-only policy review, and broader backup
 policy remain future work.

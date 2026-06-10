@@ -62,6 +62,8 @@ DRIFT_PATTERNS = {
     "remains pending in sibling repositories",
     "implementation pending in sibling repos",
     "TradingAgents does not yet consume Market Data Lab",
+    "Vultr deployment exposes Account Web",
+    "py-moomoo Account Web route",
 }
 
 
@@ -70,6 +72,7 @@ def main() -> int:
         check_expected_files,
         check_catalog,
         check_forbidden_patterns,
+        check_moomoo_vultr_lockdown,
         check_imports,
     ]
     failures: list[str] = []
@@ -142,6 +145,24 @@ def check_forbidden_patterns() -> list[str]:
         for pattern in DRIFT_PATTERNS:
             if pattern in text:
                 failures.append(f"stale deployment wording {pattern!r} in {path.relative_to(ROOT)}")
+    return failures
+
+
+def check_moomoo_vultr_lockdown() -> list[str]:
+    failures = []
+    caddyfile = (ROOT / "deploy" / "Caddyfile").read_text(encoding="utf-8")
+    if "/moomoo" in caddyfile or "moomoo-account-web" in caddyfile:
+        failures.append("Caddyfile must not route moomoo account services")
+
+    compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+    if "\n  moomoo-account-web:" in compose:
+        failures.append("production Compose must not define moomoo-account-web")
+    if "MOOMOO_ACCOUNT_WEB_PUBLIC_" in compose:
+        failures.append("production Compose must not publish moomoo Account Web URLs")
+
+    env_example = (ROOT / ".env.production.example").read_text(encoding="utf-8")
+    if "MOOMOO_ACCOUNT_WEB_PUBLIC_" in env_example:
+        failures.append("production env example must not include public moomoo Account Web URLs")
     return failures
 
 

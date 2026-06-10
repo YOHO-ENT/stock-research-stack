@@ -36,6 +36,7 @@ Cross-project HTTP boundaries are documented in
   - `GET /api/research-universe/export`
 - Boundaries:
   - Requires moomoo OpenD to be started and logged in outside this stack.
+  - Local-only: not deployed, routed, or cached on Vultr production.
   - research-stack does not manage account secrets, trading passwords, or RSA
     private keys.
   - Exports must remain read-only and account-safe.

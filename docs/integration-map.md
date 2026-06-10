@@ -7,8 +7,8 @@ not a preferred integration mechanism.
 
 | Flow | Current or Target | Contract |
 |---|---|---|
-| moomoo Account Web -> Market Data Lab | Current | py-moomoo-api may call Market Data Lab read-only endpoints for status and snapshots. |
-| Market Data Lab -> moomoo Account Web | Current | Market Data Lab reads `GET /api/research-universe/export`. It must not read moomoo cache files. See [HTTP contracts](http-contracts.md). |
+| moomoo Account Web -> Market Data Lab | Local-only current | py-moomoo-api may call Market Data Lab read-only endpoints for status and snapshots on the operator machine. This flow is not deployed to Vultr. |
+| Market Data Lab -> moomoo Account Web | Local-only current | Market Data Lab reads `GET /api/research-universe/export` locally. It must not read moomoo cache files, and Vultr production leaves `MOOMOO_ACCOUNT_WEB_URL` empty. See [HTTP contracts](http-contracts.md). |
 | Market Data Lab -> Firn | Current local v1 | Market Data Lab can push normalized watchlists to Firn `PUT /api/config/watchlist` over HTTP when Firn enables `FIRN_WATCHLIST_EDITABLE=true`. |
 | DailyBrief -> generated reports | Current | DailyBrief writes static HTML/JSON report artifacts under its own `daily_reports/` directory. |
 | TradingAgents -> Market Data Lab | Current local v1 | TradingAgents can read Market Data Lab universes through its own `/api/market-data/universes` adapter and fill the existing analysis form. |

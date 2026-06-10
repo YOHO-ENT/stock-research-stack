@@ -12,15 +12,12 @@ DAILYBRIEF_REPORTS_HEALTH_CHECK_URL="${DAILYBRIEF_REPORTS_HEALTH_CHECK_URL:-http
 MARKET_DATA_LAB_REPO_URL="${MARKET_DATA_LAB_REPO_URL:-https://github.com/YOHO-ENT/market-data-lab.git}"
 FIRN_REPO_URL="${FIRN_REPO_URL:-https://github.com/YOHO-ENT/firn-update.git}"
 TRADINGAGENTS_REPO_URL="${TRADINGAGENTS_REPO_URL:-https://github.com/YOHO-ENT/trading-agents-update.git}"
-PY_MOOMOO_API_REPO_URL="${PY_MOOMOO_API_REPO_URL:-https://github.com/YOHO-ENT/moomoo-api.git}"
 MARKET_DATA_LAB_LOCAL_DIR="${MARKET_DATA_LAB_LOCAL_DIR:-$ROOT_DIR/../market-data-lab}"
 FIRN_LOCAL_DIR="${FIRN_LOCAL_DIR:-$ROOT_DIR/../Firn}"
 TRADINGAGENTS_LOCAL_DIR="${TRADINGAGENTS_LOCAL_DIR:-$ROOT_DIR/../TradingAgents}"
-PY_MOOMOO_API_LOCAL_DIR="${PY_MOOMOO_API_LOCAL_DIR:-$ROOT_DIR/../py-moomoo-api}"
 MARKET_DATA_LAB_REMOTE_DIR="${MARKET_DATA_LAB_REMOTE_DIR:-/opt/market-data-lab}"
 FIRN_REMOTE_DIR="${FIRN_REMOTE_DIR:-/opt/Firn}"
 TRADINGAGENTS_REMOTE_DIR="${TRADINGAGENTS_REMOTE_DIR:-/opt/TradingAgents}"
-PY_MOOMOO_API_REMOTE_DIR="${PY_MOOMOO_API_REMOTE_DIR:-/opt/py-moomoo-api}"
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -99,7 +96,6 @@ upload_source_archives() {
   upload_repo_archive "market-data-lab" "$MARKET_DATA_LAB_LOCAL_DIR" "$MARKET_DATA_LAB_REMOTE_DIR"
   upload_repo_archive "Firn" "$FIRN_LOCAL_DIR" "$FIRN_REMOTE_DIR"
   upload_repo_archive "TradingAgents" "$TRADINGAGENTS_LOCAL_DIR" "$TRADINGAGENTS_REMOTE_DIR"
-  upload_repo_archive "py-moomoo-api" "$PY_MOOMOO_API_LOCAL_DIR" "$PY_MOOMOO_API_REMOTE_DIR"
 }
 
 resolve_auth() {
@@ -137,8 +133,8 @@ resolve_auth() {
 deploy_remote() {
   log "deploying to ${SSH_TARGET}:${REMOTE_DIR}"
   local remote_dir_b64 auth_user_b64 auth_hash_b64 reports_url_b64 reports_health_b64
-  local market_repo_b64 firn_repo_b64 trading_repo_b64 moomoo_repo_b64
-  local market_dir_b64 firn_dir_b64 trading_dir_b64 moomoo_dir_b64
+  local market_repo_b64 firn_repo_b64 trading_repo_b64
+  local market_dir_b64 firn_dir_b64 trading_dir_b64
   remote_dir_b64="$(b64 "$REMOTE_DIR")"
   auth_user_b64="$(b64 "$HUB_AUTH_USER")"
   auth_hash_b64="$(b64 "$HUB_AUTH_HASH")"
@@ -147,14 +143,12 @@ deploy_remote() {
   market_repo_b64="$(b64 "$MARKET_DATA_LAB_REPO_URL")"
   firn_repo_b64="$(b64 "$FIRN_REPO_URL")"
   trading_repo_b64="$(b64 "$TRADINGAGENTS_REPO_URL")"
-  moomoo_repo_b64="$(b64 "$PY_MOOMOO_API_REPO_URL")"
   market_dir_b64="$(b64 "$MARKET_DATA_LAB_REMOTE_DIR")"
   firn_dir_b64="$(b64 "$FIRN_REMOTE_DIR")"
   trading_dir_b64="$(b64 "$TRADINGAGENTS_REMOTE_DIR")"
-  moomoo_dir_b64="$(b64 "$PY_MOOMOO_API_REMOTE_DIR")"
 
   ssh_cmd \
-    "REMOTE_DIR_B64='$remote_dir_b64' AUTH_USER_B64='$auth_user_b64' AUTH_HASH_B64='$auth_hash_b64' REPORTS_URL_B64='$reports_url_b64' REPORTS_HEALTH_B64='$reports_health_b64' MARKET_REPO_B64='$market_repo_b64' FIRN_REPO_B64='$firn_repo_b64' TRADING_REPO_B64='$trading_repo_b64' MOOMOO_REPO_B64='$moomoo_repo_b64' MARKET_DIR_B64='$market_dir_b64' FIRN_DIR_B64='$firn_dir_b64' TRADING_DIR_B64='$trading_dir_b64' MOOMOO_DIR_B64='$moomoo_dir_b64' bash -s" <<'REMOTE'
+    "REMOTE_DIR_B64='$remote_dir_b64' AUTH_USER_B64='$auth_user_b64' AUTH_HASH_B64='$auth_hash_b64' REPORTS_URL_B64='$reports_url_b64' REPORTS_HEALTH_B64='$reports_health_b64' MARKET_REPO_B64='$market_repo_b64' FIRN_REPO_B64='$firn_repo_b64' TRADING_REPO_B64='$trading_repo_b64' MARKET_DIR_B64='$market_dir_b64' FIRN_DIR_B64='$firn_dir_b64' TRADING_DIR_B64='$trading_dir_b64' bash -s" <<'REMOTE'
 set -Eeuo pipefail
 
 decode() {
@@ -169,11 +163,9 @@ DAILYBRIEF_REPORTS_HEALTH_CHECK_URL_VALUE="$(decode "$REPORTS_HEALTH_B64")"
 MARKET_DATA_LAB_REPO_URL="$(decode "$MARKET_REPO_B64")"
 FIRN_REPO_URL="$(decode "$FIRN_REPO_B64")"
 TRADINGAGENTS_REPO_URL="$(decode "$TRADING_REPO_B64")"
-PY_MOOMOO_API_REPO_URL="$(decode "$MOOMOO_REPO_B64")"
 MARKET_DATA_LAB_DIR_VALUE="$(decode "$MARKET_DIR_B64")"
 FIRN_DIR_VALUE="$(decode "$FIRN_DIR_B64")"
 TRADINGAGENTS_DIR_VALUE="$(decode "$TRADING_DIR_B64")"
-PY_MOOMOO_API_DIR_VALUE="$(decode "$MOOMOO_DIR_B64")"
 
 command -v git >/dev/null || { echo "git is required" >&2; exit 1; }
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 1; }
@@ -201,7 +193,7 @@ fi
 require_source "$MARKET_DATA_LAB_DIR_VALUE" "market-data-lab" "pyproject.toml"
 require_source "$FIRN_DIR_VALUE" "Firn" "global-market-agent/Dockerfile"
 require_source "$TRADINGAGENTS_DIR_VALUE" "TradingAgents" "pyproject.toml"
-require_source "$PY_MOOMOO_API_DIR_VALUE" "py-moomoo-api" "setup.py"
+rm -rf /opt/py-moomoo-api
 
 cd "$REMOTE_DIR"
 previous_env="$(mktemp)"
@@ -219,7 +211,6 @@ export DAILYBRIEF_REPORTS_HEALTH_CHECK_URL_VALUE
 export MARKET_DATA_LAB_DIR_VALUE
 export FIRN_DIR_VALUE
 export TRADINGAGENTS_DIR_VALUE
-export PY_MOOMOO_API_DIR_VALUE
 export PREVIOUS_ENV_PATH="$previous_env"
 python3 - <<'PY'
 from pathlib import Path
@@ -272,7 +263,6 @@ updates = {
     "MARKET_DATA_LAB_DIR": os.environ["MARKET_DATA_LAB_DIR_VALUE"],
     "FIRN_DIR": os.environ["FIRN_DIR_VALUE"],
     "TRADINGAGENTS_DIR": os.environ["TRADINGAGENTS_DIR_VALUE"],
-    "PY_MOOMOO_API_DIR": os.environ["PY_MOOMOO_API_DIR_VALUE"],
 }
 for key in preserve_keys:
     if previous.get(key):
@@ -327,7 +317,9 @@ if [ ! -f runtime/dailybrief-reports/index.html ]; then
 HTML
 fi
 
-docker compose up -d --build
+docker compose up -d --build --remove-orphans
+docker rm -f research-stack-moomoo-account-web-1 2>/dev/null || true
+docker volume rm research-stack_moomoo_account_web_data 2>/dev/null || true
 # File bind mounts keep the original inode; after a git update, recreate Caddy
 # so it sees the current Caddyfile instead of the previous mounted file.
 docker compose up -d --force-recreate --no-deps caddy
@@ -338,7 +330,7 @@ REMOTE
 verify_remote() {
   log "verifying unauthenticated protection"
   local route code
-  for route in / /brief/ /market/ /firn/ /agents/ /moomoo/; do
+  for route in / /brief/ /market/ /firn/ /agents/; do
     code=""
     for _ in {1..20}; do
       code="$(curl --max-time 3 -s -o /dev/null -w '%{http_code}' "http://149.28.156.116${route}" || true)"
@@ -350,6 +342,9 @@ verify_remote() {
 
   log "verifying remote internal endpoints"
   ssh_cmd "cd '$REMOTE_DIR' && docker compose ps && \
+    ! docker compose config --services | grep -qx moomoo-account-web && \
+    ! docker compose ps --services | grep -qx moomoo-account-web && \
+    ! docker volume ls -q | grep -qx research-stack_moomoo_account_web_data && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/ && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/api/services && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/api/health && \
@@ -361,8 +356,8 @@ verify_remote() {
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/firn/api/health && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/agents/ && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/agents/health && \
-    docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/moomoo/ && \
-    docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/moomoo/api/watchlists/status"
+    moomoo_code=\$(docker compose exec -T caddy wget -q -S -O /dev/null http://127.0.0.1:8080/moomoo/ 2>&1 | sed -n 's/.*HTTP\/1\.1 \([0-9][0-9][0-9]\).*/\1/p' | tail -1) && \
+    [ \"\$moomoo_code\" = \"404\" ]"
 }
 
 main() {
