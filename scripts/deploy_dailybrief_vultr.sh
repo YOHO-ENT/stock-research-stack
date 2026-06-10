@@ -206,6 +206,7 @@ fi
 
 runuser -u deploy -- bash -lc "cd '$REMOTE_DAILYBRIEF_DIR' && python3 -m venv .venv && .venv/bin/pip install --upgrade pip setuptools wheel && .venv/bin/pip install -e '.[test]'"
 
+install -d -m 0755 -o deploy -g deploy "$REMOTE_DAILYBRIEF_DIR/daily_reports" "$REMOTE_DAILYBRIEF_DIR/logs"
 chmod 0755 "$REMOTE_DAILYBRIEF_DIR/deploy/vultr/run_dailybrief_once.sh"
 install -m 0644 "$REMOTE_DAILYBRIEF_DIR/deploy/vultr/dailybrief.service" /etc/systemd/system/dailybrief.service
 install -m 0644 "$REMOTE_DAILYBRIEF_DIR/deploy/vultr/dailybrief.timer" /etc/systemd/system/dailybrief.timer
