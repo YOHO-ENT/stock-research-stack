@@ -80,8 +80,9 @@ http://149.28.156.116
 
 The IP-only deployment uses Docker Compose plus Caddy on port `80`. It does not
 use a domain, HTTPS, Kubernetes, DNS changes, or sibling project deployments.
-Production catalog mode shows Research Hub and DailyBrief only; DailyBrief stays
-`skipped` until a public static report URL is configured.
+Production catalog mode shows Research Hub and DailyBrief only. Caddy protects
+the site with temporary Basic Auth and serves DailyBrief static reports under
+`/brief/`.
 
 See [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md).
 
@@ -104,6 +105,12 @@ Validate this repo:
 
 ```bash
 python3 scripts/check.py
+```
+
+Deploy the current `main` branch to the existing Vultr host:
+
+```bash
+scripts/deploy_vultr.sh
 ```
 
 Git history is used only for this orchestration layer.

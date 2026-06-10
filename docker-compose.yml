@@ -11,6 +11,7 @@ services:
       RESEARCH_HUB_CATALOG_MODE: ${RESEARCH_HUB_CATALOG_MODE:-production}
       RESEARCH_HUB_PUBLIC_URL: ${RESEARCH_HUB_PUBLIC_URL:-http://149.28.156.116}
       DAILYBRIEF_PUBLIC_REPORTS_URL: ${DAILYBRIEF_PUBLIC_REPORTS_URL:-}
+      DAILYBRIEF_REPORTS_HEALTH_CHECK_URL: ${DAILYBRIEF_REPORTS_HEALTH_CHECK_URL:-http://caddy:8080/brief/}
     expose:
       - "3030"
     healthcheck:
@@ -32,10 +33,14 @@ services:
     depends_on:
       research-hub:
         condition: service_healthy
+    environment:
+      HUB_AUTH_USER: ${HUB_AUTH_USER:?set HUB_AUTH_USER in .env}
+      HUB_AUTH_HASH: ${HUB_AUTH_HASH:?set HUB_AUTH_HASH in .env}
     ports:
       - "80:80"
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./runtime/dailybrief-reports:/srv/dailybrief-reports:ro
       - caddy_data:/data
       - caddy_config:/config
 

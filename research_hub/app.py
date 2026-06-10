@@ -90,7 +90,9 @@ def apply_runtime_overrides(raw: dict[str, Any]) -> dict[str, Any]:
         reports_url = env_text("DAILYBRIEF_PUBLIC_REPORTS_URL")
         if reports_url:
             service["public_url"] = reports_url
-            service["public_health_check_url"] = reports_url
+        reports_health_url = env_text("DAILYBRIEF_REPORTS_HEALTH_CHECK_URL")
+        if reports_health_url:
+            service["public_health_check_url"] = reports_health_url
     return service
 
 

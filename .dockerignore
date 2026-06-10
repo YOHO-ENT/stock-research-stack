@@ -12,6 +12,7 @@ logs/
 tmp/
 reports/
 daily_reports/
+runtime/
 dist/
 build/
 node_modules/

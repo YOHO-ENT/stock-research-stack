@@ -4,11 +4,33 @@
 
 :80 {
 	encode gzip
+	basic_auth {
+		{$HUB_AUTH_USER} {$HUB_AUTH_HASH}
+	}
+	import research_stack_routes
+}
+
+:8080 {
+	encode gzip
+	import research_stack_routes
+}
+
+(research_stack_routes) {
+	redir /brief /brief/
+
+	handle_path /brief/* {
+		root * /srv/dailybrief-reports
+		file_server
+	}
+
 	reverse_proxy research-hub:3030
 }
 
 # Future domain/HTTPS shape:
 # hub.example.com {
 # 	encode gzip
+# 	basic_auth {
+# 		{$HUB_AUTH_USER} {$HUB_AUTH_HASH}
+# 	}
 # 	reverse_proxy research-hub:3030
 # }

@@ -13,7 +13,7 @@ HTTPS.
 | SSH target | `root@149.28.156.116` |
 | SSH key | `~/.ssh/research_stack_vultr` |
 | Public ports | `80`, `22` |
-| DailyBrief public URL | empty for now |
+| DailyBrief public URL | `http://149.28.156.116/brief/` |
 
 ## Local Preparation
 
@@ -34,15 +34,30 @@ the local agent:
 ssh-add ~/.ssh/research_stack_vultr
 ```
 
-## Server Deployment
+## Basic Auth
 
-Connect to the server:
+The IP-only deployment protects the whole site with Caddy Basic Auth. This is a
+temporary access gate for HTTP-only deployment and does not replace HTTPS.
 
-```bash
-ssh -i ~/.ssh/research_stack_vultr root@149.28.156.116
+The remote `.env` file stores only:
+
+```env
+HUB_AUTH_USER=admin
+HUB_AUTH_HASH=...
 ```
 
-Install Docker if it is missing:
+Do not commit plaintext passwords. Use `scripts/deploy_vultr.sh`; it reads the
+password locally and writes only the generated Caddy hash to the server.
+
+## Server Deployment
+
+Deploy from the local repo:
+
+```bash
+scripts/deploy_vultr.sh
+```
+
+If Docker is missing on the server, install it first:
 
 ```bash
 apt-get update
@@ -56,7 +71,7 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-Clone or update the control repo:
+The deploy script will clone or update the control repo:
 
 ```bash
 mkdir -p /opt/research-stack
@@ -69,37 +84,37 @@ else
 fi
 ```
 
-Start Research Hub:
+The deploy script will then:
 
-```bash
-cd /opt/research-stack
-cp .env.production.example .env
-docker compose up -d --build
-```
+- preserve or generate `HUB_AUTH_HASH`;
+- create `runtime/dailybrief-reports`;
+- create a placeholder `runtime/dailybrief-reports/index.html` if no report
+  exists;
+- run `docker compose up -d --build`.
 
 ## Verification
 
 ```bash
 docker ps
-curl -fsS http://127.0.0.1/api/services
-curl -fsS http://127.0.0.1/api/health
+curl -fsS http://127.0.0.1:8080/api/services
+curl -fsS http://127.0.0.1:8080/api/health
+curl -fsS http://127.0.0.1:8080/brief/
 ```
 
 From the local machine:
 
 ```bash
-curl http://149.28.156.116/
-curl http://149.28.156.116/api/services
-curl http://149.28.156.116/api/health
+curl -I http://149.28.156.116/
 ```
 
 Expected behavior:
 
 - Research Hub is reachable at `http://149.28.156.116`.
+- Unauthenticated access returns `401`.
 - Production catalog shows Research Hub and DailyBrief only.
 - Research Hub status is `ok`; its self-health check uses the container-local
   URL to avoid public-IP hairpin timeouts.
-- DailyBrief is `skipped` until `DAILYBRIEF_PUBLIC_REPORTS_URL` is set.
+- DailyBrief links to `/brief/` and checks the internal Caddy static route.
 - Deprecated news-project references are absent.
 
 ## Operations

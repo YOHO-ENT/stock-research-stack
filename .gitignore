@@ -14,6 +14,7 @@ tmp/
 reports/
 daily_reports/
 generated/
+runtime/
 
 # OS and editor files
 .DS_Store

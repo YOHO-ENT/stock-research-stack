@@ -45,7 +45,7 @@ store secrets in git.
 | SSH key | `~/.ssh/research_stack_vultr` |
 | Public URL | `http://149.28.156.116` |
 | Public ports | `80`, `22` |
-| DailyBrief public URL | empty for now |
+| DailyBrief public URL | `http://149.28.156.116/brief/` |
 
 ## Service Notes
 
@@ -57,7 +57,18 @@ store secrets in git.
 - `TradingAgents` has a Dockerfile and Compose for CLI/Ollama, but not for its
   API plus frontend web console.
 - `DailyBrief` is Python-only: no database, server, or frontend framework. It
-  can run via scheduler/GitHub Actions and publish static reports.
+  can run via scheduler/GitHub Actions and publish static reports. The current
+  control-plane deployment only serves a static report directory at `/brief/`;
+  it does not run the DailyBrief pipeline.
+
+## Current Operations
+
+- `scripts/deploy_vultr.sh` deploys the current `main` branch to the existing
+  host.
+- Caddy Basic Auth protects the IP-only site. The server `.env` stores only the
+  Caddy hash, not the plaintext password.
+- DailyBrief reports are served from
+  `/opt/research-stack/runtime/dailybrief-reports`.
 
 ## Deployment Acceptance For A Later Phase
 
