@@ -10,7 +10,7 @@ HTTPS.
 |---|---|
 | Public URL | `http://149.28.156.116` |
 | SSH target | `root@149.28.156.116` |
-| SSH key | `~/.ssh/vultr_daily_news` |
+| SSH key | `~/.ssh/research_stack_vultr` |
 | Public ports | `80`, `22` |
 | DailyBrief public URL | empty for now |
 
@@ -30,7 +30,7 @@ If SSH key login fails because the private key has a passphrase, load it into
 the local agent:
 
 ```bash
-ssh-add ~/.ssh/vultr_daily_news
+ssh-add ~/.ssh/research_stack_vultr
 ```
 
 ## Server Deployment
@@ -38,7 +38,7 @@ ssh-add ~/.ssh/vultr_daily_news
 Connect to the server:
 
 ```bash
-ssh -i ~/.ssh/vultr_daily_news root@149.28.156.116
+ssh -i ~/.ssh/research_stack_vultr root@149.28.156.116
 ```
 
 Install Docker if it is missing:

@@ -42,7 +42,7 @@ store secrets in git.
 | Setting | Value |
 |---|---|
 | SSH target | `root@149.28.156.116` |
-| SSH key | `~/.ssh/vultr_daily_news` |
+| SSH key | `~/.ssh/research_stack_vultr` |
 | Public URL | `http://149.28.156.116` |
 | Public ports | `80`, `22` |
 | DailyBrief public URL | empty for now |
