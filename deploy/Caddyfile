@@ -2,6 +2,17 @@
 	auto_https off
 }
 
+(research_stack_routes) {
+	redir /brief /brief/
+
+	handle_path /brief/* {
+		root * /srv/dailybrief-reports
+		file_server
+	}
+
+	reverse_proxy research-hub:3030
+}
+
 :80 {
 	encode gzip
 	basic_auth {
@@ -13,17 +24,6 @@
 :8080 {
 	encode gzip
 	import research_stack_routes
-}
-
-(research_stack_routes) {
-	redir /brief /brief/
-
-	handle_path /brief/* {
-		root * /srv/dailybrief-reports
-		file_server
-	}
-
-	reverse_proxy research-hub:3030
 }
 
 # Future domain/HTTPS shape:

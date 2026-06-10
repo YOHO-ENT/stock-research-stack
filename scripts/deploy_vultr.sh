@@ -215,8 +215,12 @@ REMOTE
 
 verify_remote() {
   log "verifying unauthenticated protection"
-  local code
-  code="$(curl -s -o /dev/null -w '%{http_code}' http://149.28.156.116/)"
+  local code=""
+  for _ in {1..20}; do
+    code="$(curl --max-time 3 -s -o /dev/null -w '%{http_code}' http://149.28.156.116/ || true)"
+    [ "$code" = "401" ] && break
+    sleep 1
+  done
   [ "$code" = "401" ] || fail "expected unauthenticated / to return 401, got ${code}"
 
   log "verifying remote internal endpoints"
