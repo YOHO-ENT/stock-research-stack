@@ -1,0 +1,43 @@
+services:
+  research-hub:
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      RESEARCH_HUB_HOST: 0.0.0.0
+      RESEARCH_HUB_PORT: 3030
+      RESEARCH_HUB_HEALTH_TIMEOUT_SECONDS: ${RESEARCH_HUB_HEALTH_TIMEOUT_SECONDS:-2.5}
+      RESEARCH_HUB_CATALOG_MODE: ${RESEARCH_HUB_CATALOG_MODE:-production}
+      RESEARCH_HUB_PUBLIC_URL: ${RESEARCH_HUB_PUBLIC_URL:-http://149.28.156.116}
+      DAILYBRIEF_PUBLIC_REPORTS_URL: ${DAILYBRIEF_PUBLIC_REPORTS_URL:-}
+    expose:
+      - "3030"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3030/api/services', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      research-hub:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

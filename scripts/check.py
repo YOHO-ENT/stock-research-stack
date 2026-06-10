@@ -13,11 +13,17 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 EXPECTED_FILES = {
+    ".dockerignore",
     ".env.example",
+    ".env.production.example",
     ".gitignore",
+    "Dockerfile",
     "README.md",
     "pyproject.toml",
     "catalog/services.json",
+    "deploy/Caddyfile",
+    "docker-compose.yml",
+    "docs/ip-only-vultr-deployment.md",
     "docs/integration-map.md",
     "docs/local-start-plan.md",
     "docs/operating-model.md",

@@ -70,6 +70,21 @@ Research Hub reads [catalog/services.json](catalog/services.json), serves
 service links, and performs best-effort backend health checks. It does not
 start sibling services.
 
+## IP-Only Vultr Deployment
+
+Research Hub can be deployed to the existing Vultr instance at:
+
+```text
+http://149.28.156.116
+```
+
+The IP-only deployment uses Docker Compose plus Caddy on port `80`. It does not
+use a domain, HTTPS, Kubernetes, DNS changes, or sibling project deployments.
+Production catalog mode shows Research Hub and DailyBrief only; DailyBrief stays
+`skipped` until a public static report URL is configured.
+
+See [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md).
+
 ## Contents
 
 This repository contains:
@@ -78,6 +93,7 @@ This repository contains:
 - [Integration map](docs/integration-map.md)
 - [Ports](docs/ports.md)
 - [Local start plan](docs/local-start-plan.md)
+- [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md)
 - [Operating model](docs/operating-model.md)
 - [Roadmap](docs/roadmap.md)
 - [Vultr deployment plan](docs/vultr-deployment-plan.md)

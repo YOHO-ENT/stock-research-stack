@@ -1,10 +1,11 @@
 # Ports
 
-This file is the Phase 1 source of truth for local port planning.
+This file is the source of truth for local and current IP-only Vultr ports.
 
 | Component | Planned URL | Notes |
 |---|---:|---|
 | Research Hub | `http://127.0.0.1:3030` | Local link and health-status page. |
+| Research Hub on Vultr | `http://149.28.156.116:80` | IP-only production entry point through Caddy. |
 | moomoo Account Web | `http://127.0.0.1:8501` | Existing py-moomoo-api dashboard. |
 | moomoo OpenD gateway | `127.0.0.1:11111` | Local gateway, not HTTP. |
 | Market Data Lab API | `http://127.0.0.1:8010` | Existing default API port. |
@@ -20,5 +21,5 @@ This file is the Phase 1 source of truth for local port planning.
 - Firn API and TradingAgents API both default to `8000`; research-stack assigns
   TradingAgents API to `8002`.
 - DailyBrief does not reserve a port because it has no web server or frontend.
-- Future reverse proxy ports should terminate on standard `80` and `443` on
-  Vultr and route to these internal services.
+- Current IP-only deployment exposes `80` only for Research Hub. Future domain
+  deployment should add `443`.

@@ -1,13 +1,16 @@
 # Vultr Deployment Plan
 
-This is a future deployment plan. Phase 1 does not create Docker Compose files,
-reverse-proxy config, systemd units, images, servers, DNS records, or secrets.
+This is the deployment plan for the stack control layer. The current supported
+deployment is IP-only Research Hub on the existing Vultr instance. It does not
+create a new server, change DNS, configure HTTPS, deploy sibling projects, or
+store secrets in git.
 
 ## Direction
 
-- Use one Vultr VPS first.
+- Use the existing Vultr VPS first: `149.28.156.116`.
 - Use Docker Compose for service orchestration.
-- Use a reverse proxy for TLS and routing.
+- Use Caddy as the reverse proxy.
+- Expose IP-only HTTP on port `80` first.
 - Keep each sibling project independently buildable and deployable.
 - Do not use Kubernetes or k8s.
 - Do not merge repositories into one application image.
@@ -16,7 +19,8 @@ reverse-proxy config, systemd units, images, servers, DNS records, or secrets.
 
 | Public Route | Internal Target | Notes |
 |---|---|---|
-| `research.example.com` | Research Hub | Links and health only. |
+| `http://149.28.156.116` | Research Hub | Current IP-only deployment. |
+| `research.example.com` | Research Hub | Future domain and HTTPS route. |
 | `market.example.com` | Market Data Lab UI/API | UI plus API route. |
 | `firn.example.com` | Firn UI/API | Auth, KB, audit, analysis. |
 | `agents.example.com` | TradingAgents UI/API | Web console and markdown reports. |
@@ -24,13 +28,24 @@ reverse-proxy config, systemd units, images, servers, DNS records, or secrets.
 
 ## Compose Strategy
 
-- Put Compose files in research-stack only after Phase 1.
-- Build or reference each project from its own directory.
+- Compose currently starts Research Hub plus Caddy only.
+- Future Compose expansion should build or reference each project from its own
+  directory.
 - Mount each project's data, logs, reports, and cache paths explicitly.
 - Keep secrets out of git and inject them through private env files or Vultr
   secrets management.
-- Use one reverse proxy container to route public hostnames to internal service
-  ports.
+- Use one reverse proxy container to route public hostnames or IP-only HTTP to
+  internal service ports.
+
+## Current IP-Only Deployment Values
+
+| Setting | Value |
+|---|---|
+| SSH target | `root@149.28.156.116` |
+| SSH key | `~/.ssh/vultr_daily_news` |
+| Public URL | `http://149.28.156.116` |
+| Public ports | `80`, `22` |
+| DailyBrief public URL | empty for now |
 
 ## Service Notes
 

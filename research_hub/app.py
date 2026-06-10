@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import os
 import socket
 import time
 from datetime import datetime, timezone
@@ -17,6 +18,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 3030
 DEFAULT_TIMEOUT_SECONDS = 1.5
+DEFAULT_CATALOG_MODE = "local"
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = REPO_ROOT / "catalog" / "services.json"
@@ -34,6 +36,7 @@ PUBLIC_SERVICE_FIELDS = {
     "component_type",
     "local_url",
     "public_url",
+    "public_health_check_url",
     "health_check_url",
     "dependencies",
     "notes",
@@ -55,12 +58,59 @@ def load_catalog() -> dict[str, Any]:
     return payload
 
 
+def catalog_mode() -> str:
+    raw = os.getenv("RESEARCH_HUB_CATALOG_MODE", DEFAULT_CATALOG_MODE).strip().lower()
+    if raw in {"prod", "production"}:
+        return "production"
+    return "local"
+
+
+def env_text(name: str) -> str | None:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return None
+    return raw.strip()
+
+
+def join_url(base: str, path: str) -> str:
+    return base.rstrip("/") + "/" + path.lstrip("/")
+
+
+def apply_runtime_overrides(raw: dict[str, Any]) -> dict[str, Any]:
+    service = dict(raw)
+    service_id = service.get("id")
+    if service_id == "research-hub":
+        public_url = env_text("RESEARCH_HUB_PUBLIC_URL")
+        if public_url:
+            service["public_url"] = public_url
+            service["public_health_check_url"] = join_url(public_url, "/api/services")
+    elif service_id == "dailybrief-pipeline":
+        reports_url = env_text("DAILYBRIEF_PUBLIC_REPORTS_URL")
+        if reports_url:
+            service["public_url"] = reports_url
+            service["public_health_check_url"] = reports_url
+    return service
+
+
+def include_in_catalog(service: dict[str, Any], mode: str) -> bool:
+    if mode != "production":
+        return True
+    if service.get("production_visible") is True:
+        return True
+    public_url = service.get("public_url")
+    return isinstance(public_url, str) and bool(public_url.strip())
+
+
 def list_services() -> list[dict[str, Any]]:
+    mode = catalog_mode()
     services = []
     for raw in load_catalog()["services"]:
         if not isinstance(raw, dict):
             continue
-        public = {key: raw.get(key) for key in PUBLIC_SERVICE_FIELDS if key in raw}
+        service = apply_runtime_overrides(raw)
+        if not include_in_catalog(service, mode):
+            continue
+        public = {key: service.get(key) for key in PUBLIC_SERVICE_FIELDS if key in service}
         public.setdefault("dependencies", [])
         public.setdefault("notes", [])
         services.append(public)
@@ -107,6 +157,14 @@ def check_service(service: dict[str, Any], timeout_seconds: float) -> dict[str, 
 
 
 def check_target(service: dict[str, Any]) -> str | None:
+    if catalog_mode() == "production":
+        public_health_url = service.get("public_health_check_url")
+        if isinstance(public_health_url, str) and public_health_url.strip():
+            return public_health_url.strip()
+        public_url = service.get("public_url")
+        if isinstance(public_url, str) and public_url.strip():
+            return public_url.strip()
+
     health_url = service.get("health_check_url")
     if isinstance(health_url, str) and health_url.strip():
         return health_url.strip()

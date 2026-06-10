@@ -1,0 +1,14 @@
+{
+	auto_https off
+}
+
+:80 {
+	encode gzip
+	reverse_proxy research-hub:3030
+}
+
+# Future domain/HTTPS shape:
+# hub.example.com {
+# 	encode gzip
+# 	reverse_proxy research-hub:3030
+# }

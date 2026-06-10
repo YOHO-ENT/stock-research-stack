@@ -19,6 +19,7 @@
       "component_type": "stdlib-python-web-ui",
       "local_url": "http://127.0.0.1:3030",
       "health_check_url": "http://127.0.0.1:3030/api/services",
+      "production_visible": true,
       "dependencies": [
         "moomoo-account-web",
         "market-data-lab-api",
@@ -29,6 +30,7 @@
       "notes": [
         "Implemented as a stdlib-only local Python server.",
         "Run with python3 -m research_hub --host 127.0.0.1 --port 3030.",
+        "Production IP-only deployment uses RESEARCH_HUB_PUBLIC_URL=http://149.28.156.116.",
         "Must not iframe sibling frontends.",
         "Must not merge sibling UI code."
       ]
@@ -167,11 +169,13 @@
       "component_type": "python-cli-static-report-pipeline",
       "local_url": null,
       "health_check_url": null,
+      "production_visible": true,
       "dependencies": [],
       "notes": [
         "DailyBrief is the current daily report pipeline tracked by research-stack.",
         "DailyBrief has no database, web server, web framework, or frontend service.",
         "Reports are static files under daily_reports/<YYYY-MM-DD>/.",
+        "Production Hub keeps DailyBrief visible and skipped until DAILYBRIEF_PUBLIC_REPORTS_URL is set.",
         "Useful commands include dailybrief daily, dailybrief build-site, dailybrief open, and dailybrief run-scheduled."
       ]
     }
