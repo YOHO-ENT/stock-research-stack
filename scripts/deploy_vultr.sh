@@ -97,7 +97,7 @@ resolve_auth() {
 
   if [ -n "$auth_password" ]; then
     log "hashing Basic Auth password on remote Caddy image"
-    HUB_AUTH_HASH="$(printf '%s' "$auth_password" | ssh_cmd "docker run -i --rm caddy:2-alpine caddy hash-password --algorithm bcrypt")"
+    HUB_AUTH_HASH="$(printf '%s\n' "$auth_password" | ssh_cmd "docker run -i --rm caddy:2-alpine caddy hash-password --algorithm bcrypt")"
   fi
 
   [ -n "$HUB_AUTH_USER" ] || fail "HUB_AUTH_USER is empty"
