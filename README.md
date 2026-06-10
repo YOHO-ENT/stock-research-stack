@@ -65,10 +65,19 @@ API endpoints:
 
 - `GET /api/services`
 - `GET /api/health`
+- `GET /api/control/status`
 
 Research Hub reads [catalog/services.json](catalog/services.json), serves
-service links, and performs best-effort backend health checks. It does not
-start sibling services.
+service links, performs best-effort backend health checks, and exposes
+read-only local control signals for the research loop. It does not start
+sibling services.
+
+For the local loop runbook and smoke check, see
+[Local research loop runbook](docs/local-research-loop-runbook.md):
+
+```bash
+python3 scripts/smoke_local_research_loop.py
+```
 
 ## IP-Only Vultr Deployment
 
@@ -96,6 +105,7 @@ This repository contains:
 - [Integration map](docs/integration-map.md)
 - [HTTP contracts](docs/http-contracts.md)
 - [Ports](docs/ports.md)
+- [Local research loop runbook](docs/local-research-loop-runbook.md)
 - [Local start plan](docs/local-start-plan.md)
 - [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md)
 - [DailyBrief production runbook](docs/dailybrief-production-runbook.md)

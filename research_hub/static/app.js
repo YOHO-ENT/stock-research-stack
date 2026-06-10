@@ -16,6 +16,7 @@ const VIEWS = {
 const state = {
   services: [],
   health: new Map(),
+  control: null,
   checkedAt: null,
   currentView: "ui",
 };
@@ -27,6 +28,8 @@ const viewTitle = document.querySelector("#view-title");
 const viewDescription = document.querySelector("#view-description");
 const visibleCount = document.querySelector("#visible-count");
 const overallDot = document.querySelector("#overall-dot");
+const controlStatus = document.querySelector("#control-status");
+const controlSignals = document.querySelector("#control-signals");
 const sidebar = document.querySelector("#sidebar");
 const sidebarBackdrop = document.querySelector("#sidebar-backdrop");
 const mobileNavToggle = document.querySelector("#mobile-nav-toggle");
@@ -50,13 +53,18 @@ async function refreshHealth() {
   refreshButton.disabled = true;
   summary.textContent = "Checking";
   try {
-    const payload = await fetchJson("/api/health");
-    state.health = new Map((payload.results || []).map((result) => [result.id, result]));
-    state.checkedAt = payload.checked_at;
+    const [healthPayload, controlPayload] = await Promise.all([
+      fetchJson("/api/health"),
+      fetchJson("/api/control/status"),
+    ]);
+    state.health = new Map((healthPayload.results || []).map((result) => [result.id, result]));
+    state.control = controlPayload;
+    state.checkedAt = healthPayload.checked_at;
     render();
   } catch (error) {
     summary.textContent = error.message;
     overallDot.className = "health-dot down";
+    controlStatus.textContent = "error";
   } finally {
     refreshButton.disabled = false;
   }
@@ -72,6 +80,7 @@ function render() {
   viewTitle.textContent = current.title;
   viewDescription.textContent = current.description;
   visibleCount.textContent = pluralize(services.length, "service");
+  renderControlSignals();
 
   if (!services.length) {
     body.innerHTML = '<div class="empty">No services in this view</div>';
@@ -81,6 +90,58 @@ function render() {
 
   body.innerHTML = services.map((service) => serviceRow(service, getHealth(service.id))).join("");
   updateCounts(services);
+}
+
+function renderControlSignals() {
+  const payload = state.control;
+  if (!payload) {
+    controlStatus.textContent = "not checked";
+    controlSignals.innerHTML = '<div class="empty">Control signals have not been checked yet</div>';
+    return;
+  }
+  const status = payload.status || "unknown";
+  controlStatus.textContent = status;
+  controlStatus.className = `panel-count status-text ${escapeAttr(status)}`;
+  const signals = payload.signals || [];
+  if (!signals.length) {
+    controlSignals.innerHTML = '<div class="empty">No control signals configured</div>';
+    return;
+  }
+  controlSignals.innerHTML = signals.map(signalCard).join("");
+}
+
+function signalCard(signal) {
+  const status = signal.status || "unknown";
+  const message = signal.message || "-";
+  const target = signal.target || "-";
+  const data = signal.data || {};
+  const chips = signalChips(data);
+  return `
+    <article class="signal-card">
+      <div class="signal-heading">
+        <span class="status ${escapeAttr(status)}">${escapeHtml(status)}</span>
+        <strong>${escapeHtml(signal.label || signal.id || "signal")}</strong>
+      </div>
+      <p title="${escapeAttr(message)}">${escapeHtml(message)}</p>
+      ${chips ? `<div class="signal-chips">${chips}</div>` : ""}
+      <span class="signal-target" title="${escapeAttr(target)}">${escapeHtml(target)}</span>
+    </article>
+  `;
+}
+
+function signalChips(data) {
+  const allowed = [
+    ["group_count", "groups"],
+    ["ticker_count", "tickers"],
+    ["category_count", "categories"],
+    ["editable", "editable"],
+    ["latest_report_date", "latest"],
+    ["index_exists", "index"],
+  ];
+  return allowed
+    .filter(([key]) => data[key] !== undefined && data[key] !== null)
+    .map(([key, label]) => `<span>${escapeHtml(label)}: ${escapeHtml(data[key])}</span>`)
+    .join("");
 }
 
 function groupedServices() {

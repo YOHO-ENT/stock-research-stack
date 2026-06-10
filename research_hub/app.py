@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import re
 import socket
 import time
 from datetime import datetime, timezone
@@ -128,6 +129,235 @@ def build_health_payload(timeout_seconds: float) -> dict[str, Any]:
         "timeout_seconds": timeout_seconds,
         "results": [check_service(service, timeout_seconds) for service in services],
     }
+
+
+def build_control_status_payload(timeout_seconds: float) -> dict[str, Any]:
+    """Return read-only control-loop signals for the local research workflow."""
+
+    signals = [
+        market_data_universe_signal(timeout_seconds),
+        firn_watchlist_signal(timeout_seconds),
+        tradingagents_market_data_signal(timeout_seconds),
+        dailybrief_local_signal(),
+    ]
+    counts = {"ok": 0, "warn": 0, "down": 0, "skipped": 0}
+    for signal in signals:
+        status = signal.get("status")
+        if status in counts:
+            counts[status] += 1
+    overall = "ok" if counts["down"] == 0 and counts["warn"] == 0 else "down"
+    if counts["down"] == 0 and counts["warn"] > 0:
+        overall = "warn"
+    return {
+        "checked_at": utc_now(),
+        "timeout_seconds": timeout_seconds,
+        "status": overall,
+        "summary": counts,
+        "signals": signals,
+    }
+
+
+def market_data_universe_signal(timeout_seconds: float) -> dict[str, Any]:
+    base_url = env_text("MARKET_DATA_API_URL") or "http://127.0.0.1:8010"
+    target = join_url(base_url, "/universes")
+    try:
+        payload = fetch_json(target, timeout_seconds)
+        groups = payload.get("groups") if isinstance(payload.get("groups"), dict) else {}
+        group_count = int(payload.get("group_count") or len(groups))
+        ticker_count = int(payload.get("ticker_count") or unique_ticker_count(groups))
+        synced_at = payload.get("synced_at")
+        message = f"{group_count} groups, {ticker_count} tickers"
+        if isinstance(synced_at, str) and synced_at.strip():
+            message = f"{message}; synced {synced_at.strip()}"
+        return control_signal(
+            "market-data-universe",
+            "Market Data Lab universe",
+            "ok",
+            target,
+            message=message,
+            data={
+                "group_count": group_count,
+                "ticker_count": ticker_count,
+                "synced_at": synced_at,
+            },
+        )
+    except Exception as exc:  # noqa: BLE001 - status endpoint must not crash
+        return control_signal("market-data-universe", "Market Data Lab universe", "down", target, message=safe_error(exc))
+
+
+def firn_watchlist_signal(timeout_seconds: float) -> dict[str, Any]:
+    base_url = env_text("FIRN_API_URL") or "http://127.0.0.1:8000"
+    target = join_url(base_url, "/api/config/watchlist")
+    try:
+        payload = fetch_json(target, timeout_seconds)
+        categories = payload.get("categories") if isinstance(payload.get("categories"), dict) else {}
+        category_count = len(categories)
+        ticker_count = unique_ticker_count(
+            {
+                key: (value.get("tickers") if isinstance(value, dict) else [])
+                for key, value in categories.items()
+            }
+        )
+        editable = payload.get("editable")
+        message = f"{category_count} categories, {ticker_count} tickers"
+        if isinstance(editable, bool):
+            message = f"{message}; editable={str(editable).lower()}"
+        return control_signal(
+            "firn-watchlist",
+            "Firn watchlist",
+            "ok",
+            target,
+            message=message,
+            data={
+                "category_count": category_count,
+                "ticker_count": ticker_count,
+                "editable": editable,
+                "managed_by": payload.get("managed_by"),
+            },
+        )
+    except Exception as exc:  # noqa: BLE001
+        return control_signal("firn-watchlist", "Firn watchlist", "down", target, message=safe_error(exc))
+
+
+def tradingagents_market_data_signal(timeout_seconds: float) -> dict[str, Any]:
+    base_url = env_text("TRADINGAGENTS_API_URL") or "http://127.0.0.1:8002"
+    target = join_url(base_url, "/api/market-data/universes")
+    try:
+        payload = fetch_json(target, timeout_seconds)
+        groups = payload.get("groups") if isinstance(payload.get("groups"), dict) else {}
+        group_count = len(groups)
+        ticker_count = unique_ticker_count(groups)
+        status = "ok" if payload.get("status") == "ok" else "warn"
+        message = payload.get("message") if isinstance(payload.get("message"), str) else f"{group_count} groups, {ticker_count} tickers"
+        return control_signal(
+            "tradingagents-market-data",
+            "TradingAgents Market Data Lab adapter",
+            status,
+            target,
+            message=message,
+            data={
+                "group_count": group_count,
+                "ticker_count": ticker_count,
+                "adapter_status": payload.get("status"),
+                "base_url": payload.get("base_url"),
+            },
+        )
+    except Exception as exc:  # noqa: BLE001
+        return control_signal(
+            "tradingagents-market-data",
+            "TradingAgents Market Data Lab adapter",
+            "down",
+            target,
+            message=safe_error(exc),
+        )
+
+
+def dailybrief_local_signal() -> dict[str, Any]:
+    reports_path = Path(env_text("DAILYBRIEF_REPORTS_PATH") or "/Users/yongnahwa/Desktop/DailyBrief/daily_reports")
+    today = datetime.now().date().isoformat()
+    target = str(reports_path)
+    if not reports_path.exists():
+        return control_signal("dailybrief-local-report", "DailyBrief local reports", "down", target, message="reports path missing")
+    try:
+        latest_date = latest_report_date(reports_path)
+    except OSError as exc:
+        return control_signal(
+            "dailybrief-local-report",
+            "DailyBrief local reports",
+            "down",
+            target,
+            message=f"reports path unreadable: {safe_error(exc)}",
+        )
+    index_exists = (reports_path / "index.html").is_file()
+    if latest_date == today and index_exists:
+        status = "ok"
+        message = f"latest report {latest_date}"
+    elif latest_date:
+        status = "warn"
+        message = f"latest report {latest_date}; expected {today}"
+    else:
+        status = "down"
+        message = "no dated report directories found"
+    return control_signal(
+        "dailybrief-local-report",
+        "DailyBrief local reports",
+        status,
+        target,
+        message=message,
+        data={
+            "latest_report_date": latest_date,
+            "expected_report_date": today,
+            "index_exists": index_exists,
+        },
+    )
+
+
+def control_signal(
+    signal_id: str,
+    label: str,
+    status: str,
+    target: str | None,
+    *,
+    message: str | None = None,
+    data: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return {
+        "id": signal_id,
+        "label": label,
+        "status": status,
+        "target": target,
+        "message": message,
+        "data": data or {},
+    }
+
+
+def fetch_json(url: str, timeout_seconds: float) -> dict[str, Any]:
+    request = Request(url, headers={"Accept": "application/json", "User-Agent": "research-hub/control-status"})
+    opener = build_opener(NoRedirectHandler)
+    try:
+        with opener.open(request, timeout=timeout_seconds) as response:  # noqa: S310 - local operator URLs only
+            status_code = int(getattr(response, "status", response.getcode()))
+            body = response.read(1024 * 256)
+    except HTTPError as exc:
+        raise RuntimeError(f"HTTP {exc.code}") from None
+    except URLError as exc:
+        raise RuntimeError(str(exc.reason)) from exc
+    if not (200 <= status_code < 300):
+        raise RuntimeError(f"HTTP {status_code}")
+    try:
+        payload = json.loads(body.decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        raise RuntimeError(f"invalid JSON: {safe_error(exc)}") from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError("JSON response must be an object")
+    return payload
+
+
+def unique_ticker_count(groups: dict[str, Any]) -> int:
+    seen = set()
+    for tickers in groups.values():
+        if isinstance(tickers, str):
+            candidates = [tickers]
+        else:
+            try:
+                candidates = list(tickers)
+            except TypeError:
+                candidates = []
+        for ticker in candidates:
+            text = str(ticker).strip().upper()
+            if text:
+                seen.add(text)
+    return len(seen)
+
+
+def latest_report_date(reports_path: Path) -> str | None:
+    date_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+    dates = [
+        child.name
+        for child in reports_path.iterdir()
+        if child.is_dir() and date_re.match(child.name)
+    ]
+    return max(dates) if dates else None
 
 
 def check_service(service: dict[str, Any], timeout_seconds: float) -> dict[str, Any]:
@@ -292,6 +522,9 @@ class ResearchHubHandler(BaseHTTPRequestHandler):
             elif path == "/api/health":
                 timeout = getattr(self.server, "health_timeout_seconds", DEFAULT_TIMEOUT_SECONDS)
                 self.send_json(build_health_payload(timeout))
+            elif path == "/api/control/status":
+                timeout = getattr(self.server, "health_timeout_seconds", DEFAULT_TIMEOUT_SECONDS)
+                self.send_json(build_control_status_payload(timeout))
             elif path.startswith("/static/"):
                 self.serve_static(path.removeprefix("/static/"))
             else:

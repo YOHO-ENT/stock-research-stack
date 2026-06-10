@@ -29,6 +29,8 @@ store secrets in git.
 ## Compose Strategy
 
 - Compose currently starts Research Hub plus Caddy only.
+- Future Compose expansion should happen only after the local research loop
+  smoke check is stable for the target services.
 - Future Compose expansion should build or reference each project from its own
   directory.
 - Mount each project's data, logs, reports, and cache paths explicitly.
@@ -49,8 +51,8 @@ store secrets in git.
 
 ## Service Notes
 
-- `py-moomoo-api` depends on local moomoo OpenD. Cloud deployment needs a clear
-  decision about whether OpenD runs on the VPS or only on a local machine.
+- `py-moomoo-api` depends on local moomoo OpenD. Current Vultr expansion must
+  not expose moomoo account capabilities on the VPS.
 - `market-data-lab` has no existing Dockerfile in Phase 1 research; it needs a
   future containerization pass.
 - `Firn` has Dockerfiles for API and UI, but no top-level Compose file.
@@ -75,6 +77,12 @@ store secrets in git.
 
 ## Deployment Acceptance For A Later Phase
 
+- DNS, TLS, and access control are decided before exposing sibling services.
+- First sibling deployments should be no-trading-risk services: Market Data Lab
+  read-only/cache service, TradingAgents analysis service, and Firn audit or
+  watchlist API.
+- moomoo account access stays local unless a separate security decision changes
+  that boundary.
 - Public TLS works for each enabled hostname.
 - Reverse proxy health checks use documented health endpoints.
 - No service exposes secrets in logs, static assets, or client-side config.

@@ -15,10 +15,11 @@ Cross-project HTTP boundaries are documented in
 - Useful endpoints:
   - `GET /api/services`
   - `GET /api/health`
+  - `GET /api/control/status`
 - Boundaries:
   - Does not start sibling services.
   - Does not iframe sibling frontends.
-  - Performs best-effort local health checks only.
+  - Performs best-effort local health and control-signal checks only.
 
 ## py-moomoo-api
 

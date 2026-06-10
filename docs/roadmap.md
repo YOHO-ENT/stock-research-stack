@@ -33,6 +33,17 @@ Market Data Lab has local Firn HTTP watchlist sync, and TradingAgents has a
 local Market Data Lab ticker selector. Production deployment of these sibling
 service integrations remains future work.
 
+## Phase 3.5: Local Loop Stability
+
+- Document the local operator loop from moomoo export to Market Data Lab, Firn,
+  and TradingAgents.
+- Add a read-only local smoke check for loop status.
+- Add Research Hub control signals for universe, watchlist, ticker selection,
+  and DailyBrief local reports.
+- Do not start services, deploy services, or trigger LLM runs from this layer.
+
+Status: implemented in this repository as a local control-plane capability.
+
 ## Phase 4: Local Compose Draft
 
 - Draft Docker Compose for services that are ready to run in containers.
@@ -41,8 +52,8 @@ service integrations remains future work.
 - Document services that are intentionally not containerized yet.
 
 Status: partially implemented for the Research Hub control plane only. Sibling
-projects remain independently deployed or local-only until they have explicit
-container contracts.
+projects remain independently deployed or local-only until the local loop smoke
+check is stable and they have explicit container contracts.
 
 ## Phase 5: Vultr Deployment
 
@@ -53,5 +64,6 @@ container contracts.
 - Define persistent volumes and backup paths.
 
 Status: DailyBrief systemd publishing, `/brief/` static report serving, and
-production smoke checks are implemented. TLS, DNS, sibling service deployment,
-and broader backup policy remain future work.
+production smoke checks are implemented. TLS, DNS, access control for sibling
+services, sibling service deployment, and broader backup policy remain future
+work.

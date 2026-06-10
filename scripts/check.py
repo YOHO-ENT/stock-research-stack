@@ -27,6 +27,7 @@ EXPECTED_FILES = {
     "docs/dailybrief-production-runbook.md",
     "docs/http-contracts.md",
     "docs/integration-map.md",
+    "docs/local-research-loop-runbook.md",
     "docs/local-start-plan.md",
     "docs/operating-model.md",
     "docs/ports.md",
@@ -43,6 +44,7 @@ EXPECTED_FILES = {
     "scripts/deploy_dailybrief_vultr.sh",
     "scripts/deploy_vultr.sh",
     "scripts/smoke_dailybrief_vultr.py",
+    "scripts/smoke_local_research_loop.py",
 }
 
 FORBIDDEN_PATTERNS = {
@@ -148,7 +150,7 @@ def check_imports() -> list[str]:
         app = importlib.import_module("research_hub.app")
     except Exception as exc:  # noqa: BLE001
         return [f"could not import research_hub.app: {exc}"]
-    for name in ("create_server", "list_services", "build_health_payload"):
+    for name in ("create_server", "list_services", "build_health_payload", "build_control_status_payload"):
         if not hasattr(app, name):
             return [f"research_hub.app missing {name}"]
     if not hasattr(app, "json_health_detail"):

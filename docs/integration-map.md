@@ -12,12 +12,13 @@ not a preferred integration mechanism.
 | Market Data Lab -> Firn | Current local v1 | Market Data Lab can push normalized watchlists to Firn `PUT /api/config/watchlist` over HTTP when Firn enables `FIRN_WATCHLIST_EDITABLE=true`. |
 | DailyBrief -> generated reports | Current | DailyBrief writes static HTML/JSON report artifacts under its own `daily_reports/` directory. |
 | TradingAgents -> Market Data Lab | Current local v1 | TradingAgents can read Market Data Lab universes through its own `/api/market-data/universes` adapter and fill the existing analysis form. |
-| Research Hub -> all services | Current | Research Hub links to services and checks health only. |
+| Research Hub -> all services | Current | Research Hub links to services, checks health, and reads local control signals only. |
 
 ## Explicit Non-Flows
 
 - Research Hub must not iframe sibling frontends.
 - Research Hub must not merge sibling frontends.
+- Research Hub must not start, deploy, or mutate sibling services.
 - research-stack must not import sibling project internals.
 - market-data-lab must not read moomoo cache files.
 - TradingAgents must not read Market Data Lab internal files for ticker

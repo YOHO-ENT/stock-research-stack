@@ -127,3 +127,24 @@ daily_reports/<YYYY-MM-DD>/
 
 Research Hub should show offline sibling services as `down` or `skipped` until
 you start them.
+
+## 8. Check The Local Research Loop
+
+After the services you care about are running, use the read-only local loop
+smoke check from `/Users/yongnahwa/Desktop/research-stack`:
+
+```bash
+python3 scripts/smoke_local_research_loop.py
+python3 scripts/smoke_local_research_loop.py --json
+```
+
+This check does not start services, sync moomoo, write Firn watchlists, or run
+TradingAgents analysis jobs. It only reads:
+
+- Market Data Lab `GET /universes`
+- Firn `GET /api/config/watchlist`
+- TradingAgents `GET /api/market-data/universes`
+- DailyBrief local report artifacts
+
+Use [Local research loop runbook](local-research-loop-runbook.md) for the
+manual end-to-end operator flow.
