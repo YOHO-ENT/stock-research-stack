@@ -184,6 +184,7 @@ fi
 
 install -d -m 0755 -o deploy -g deploy /home/deploy
 install -d -m 0755 -o deploy -g deploy "$REMOTE_REPORT_DIR"
+chown -R deploy:deploy "$REMOTE_REPORT_DIR"
 install -d -m 0750 -o root -g root "$(dirname "$REMOTE_ENV_FILE")"
 
 if [ -d /opt/research-stack ]; then
@@ -232,7 +233,7 @@ seed_reports() {
   printf -v report_dir_q '%q' "$REMOTE_REPORT_DIR"
   printf -v base_url_q '%q' "$DAILYBRIEF_REPORT_BASE_URL"
 
-  tar -C "${DAILYBRIEF_DIR}/daily_reports" --exclude ".DS_Store" -cf - . \
+  COPYFILE_DISABLE=1 tar -C "${DAILYBRIEF_DIR}/daily_reports" --exclude ".DS_Store" -cf - . \
     | ssh_cmd "install -d -m 0755 -o deploy -g deploy ${remote_dir_q}/daily_reports && tar -C ${remote_dir_q}/daily_reports -xf - && chown -R deploy:deploy ${remote_dir_q}/daily_reports"
 
   ssh_cmd "runuser -u deploy -- bash -lc 'cd ${remote_dir_q} && .venv/bin/python scripts/publish_reports.py --source ${remote_dir_q}/daily_reports --target ${report_dir_q} --public-url ${base_url_q}'"
@@ -258,7 +259,8 @@ main() {
   [ -d "$DAILYBRIEF_DIR" ] || fail "DailyBrief repo not found: ${DAILYBRIEF_DIR}"
   local env_tmp
   env_tmp="$(mktemp)"
-  trap 'rm -f "$env_tmp"' EXIT
+  DAILYBRIEF_DEPLOY_ENV_TMP="$env_tmp"
+  trap 'rm -f "${DAILYBRIEF_DEPLOY_ENV_TMP:-}"' EXIT
 
   build_env_file "$env_tmp"
   run_local_checks

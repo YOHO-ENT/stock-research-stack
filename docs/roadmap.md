@@ -12,6 +12,16 @@ This roadmap keeps the control repo focused on orchestration and contract work.
 
 Status: implemented in this repository.
 
+## Phase 2.5: IP-Only Hub Deployment
+
+- Run Research Hub behind Caddy with Docker Compose on the existing Vultr host.
+- Protect the public IP route with temporary Basic Auth.
+- Serve DailyBrief static report artifacts from `/brief/`.
+- Keep the production catalog limited to Research Hub and DailyBrief.
+
+Status: implemented in this repository; the Vultr host may still need to be
+updated to the latest commit.
+
 ## Phase 3: HTTP Contract Hardening
 
 - Define a Market Data Lab to Firn watchlist HTTP contract.
@@ -25,9 +35,14 @@ Status: implemented in this repository.
 - Keep secrets in private env files.
 - Document services that are intentionally not containerized yet.
 
+Status: partially implemented for the Research Hub control plane only. Sibling
+projects remain independently deployed or local-only until they have explicit
+container contracts.
+
 ## Phase 5: Vultr Deployment
 
-- Add reverse proxy routing.
-- Add TLS and hostnames.
+- Install the DailyBrief systemd publishing pipeline.
+- Publish generated DailyBrief reports into the Research Hub `/brief/` mount.
+- Verify production health checks and restart policy.
+- Add TLS and hostnames when DNS is ready.
 - Define persistent volumes and backup paths.
-- Add production health checks and restart policy.

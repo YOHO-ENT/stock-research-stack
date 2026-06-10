@@ -31,7 +31,9 @@ not a preferred integration mechanism.
   transitional and manual; research-stack does not enable it by default.
 - TradingAgents does not yet consume Market Data Lab universes through a
   documented HTTP flow.
-- Research Hub v1 exists locally on port `3030`.
-- Vultr deployment needs a future Compose file and reverse proxy config.
+- Research Hub v1 exists locally on port `3030` and has an IP-only Vultr
+  Docker Compose + Caddy deployment path.
+- The Vultr host currently needs the latest research-stack commit deployed and
+  the DailyBrief systemd publishing pipeline installed.
 - DailyBrief has a Python CLI/static report pipeline, not a web server,
   frontend, or FastAPI health endpoint.
