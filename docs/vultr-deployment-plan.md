@@ -70,7 +70,7 @@ store secrets in git.
 ## Current Operations
 
 - `scripts/deploy_vultr.sh` deploys the current `main` branch to the existing
-  host and updates managed sibling repos under `/opt`.
+  host and uploads committed sibling repo source archives under `/opt`.
 - `scripts/deploy_dailybrief_vultr.sh` deploys the DailyBrief systemd timer and
   publishes static reports into the Research Hub report mount.
 - Caddy Basic Auth protects the IP-only site. The server `.env` stores only the

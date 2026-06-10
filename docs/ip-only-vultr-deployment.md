@@ -76,8 +76,7 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-The deploy script will clone or update the control repo and managed sibling
-repos:
+The deploy script will clone or update the control repo:
 
 ```bash
 mkdir -p /opt/research-stack
@@ -94,8 +93,10 @@ The deploy script will then:
 
 - preserve or generate `HUB_AUTH_HASH`;
 - preserve or generate private Firn JWT/admin values in the server `.env`;
-- update `/opt/market-data-lab`, `/opt/Firn`, `/opt/TradingAgents`, and
-  `/opt/py-moomoo-api`;
+- upload committed sibling repo source archives from the local machine into
+  `/opt/market-data-lab`, `/opt/Firn`, `/opt/TradingAgents`, and
+  `/opt/py-moomoo-api`, so the VPS does not need GitHub credentials for
+  private repos;
 - create `runtime/dailybrief-reports`;
 - create a placeholder `runtime/dailybrief-reports/index.html` if no report
   exists;

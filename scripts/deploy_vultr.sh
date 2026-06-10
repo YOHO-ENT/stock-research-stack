@@ -13,6 +13,10 @@ MARKET_DATA_LAB_REPO_URL="${MARKET_DATA_LAB_REPO_URL:-https://github.com/YOHO-EN
 FIRN_REPO_URL="${FIRN_REPO_URL:-https://github.com/YOHO-ENT/firn-update.git}"
 TRADINGAGENTS_REPO_URL="${TRADINGAGENTS_REPO_URL:-https://github.com/YOHO-ENT/trading-agents-update.git}"
 PY_MOOMOO_API_REPO_URL="${PY_MOOMOO_API_REPO_URL:-https://github.com/YOHO-ENT/moomoo-api.git}"
+MARKET_DATA_LAB_LOCAL_DIR="${MARKET_DATA_LAB_LOCAL_DIR:-$ROOT_DIR/../market-data-lab}"
+FIRN_LOCAL_DIR="${FIRN_LOCAL_DIR:-$ROOT_DIR/../Firn}"
+TRADINGAGENTS_LOCAL_DIR="${TRADINGAGENTS_LOCAL_DIR:-$ROOT_DIR/../TradingAgents}"
+PY_MOOMOO_API_LOCAL_DIR="${PY_MOOMOO_API_LOCAL_DIR:-$ROOT_DIR/../py-moomoo-api}"
 MARKET_DATA_LAB_REMOTE_DIR="${MARKET_DATA_LAB_REMOTE_DIR:-/opt/market-data-lab}"
 FIRN_REMOTE_DIR="${FIRN_REMOTE_DIR:-/opt/Firn}"
 TRADINGAGENTS_REMOTE_DIR="${TRADINGAGENTS_REMOTE_DIR:-/opt/TradingAgents}"
@@ -78,6 +82,24 @@ read_remote_auth() {
   local remote_dir_q
   printf -v remote_dir_q '%q' "$REMOTE_DIR"
   ssh_cmd "if [ -f ${remote_dir_q}/.env ]; then grep -E '^(HUB_AUTH_USER|HUB_AUTH_HASH)=' ${remote_dir_q}/.env || true; fi" 2>/dev/null || true
+}
+
+upload_repo_archive() {
+  local name="$1"
+  local local_dir="$2"
+  local remote_dir="$3"
+  local remote_dir_q
+  [ -d "$local_dir/.git" ] || fail "${name} local git repo not found: ${local_dir}"
+  printf -v remote_dir_q '%q' "$remote_dir"
+  log "uploading ${name} source archive to ${SSH_TARGET}:${remote_dir}"
+  git -C "$local_dir" archive --format=tar HEAD | ssh_cmd "rm -rf ${remote_dir_q} && install -d -m 0755 ${remote_dir_q} && tar -xf - -C ${remote_dir_q}"
+}
+
+upload_source_archives() {
+  upload_repo_archive "market-data-lab" "$MARKET_DATA_LAB_LOCAL_DIR" "$MARKET_DATA_LAB_REMOTE_DIR"
+  upload_repo_archive "Firn" "$FIRN_LOCAL_DIR" "$FIRN_REMOTE_DIR"
+  upload_repo_archive "TradingAgents" "$TRADINGAGENTS_LOCAL_DIR" "$TRADINGAGENTS_REMOTE_DIR"
+  upload_repo_archive "py-moomoo-api" "$PY_MOOMOO_API_LOCAL_DIR" "$PY_MOOMOO_API_REMOTE_DIR"
 }
 
 resolve_auth() {
@@ -157,17 +179,13 @@ command -v git >/dev/null || { echo "git is required" >&2; exit 1; }
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 1; }
 docker compose version >/dev/null
 
-sync_repo() {
-  local repo_url="$1"
-  local target_dir="$2"
-  local branch="${3:-main}"
-  if [ -d "${target_dir}/.git" ]; then
-    git -C "$target_dir" fetch origin
-    git -C "$target_dir" checkout "$branch"
-    git -C "$target_dir" pull --ff-only origin "$branch"
-  else
-    rm -rf "$target_dir"
-    git clone --branch "$branch" "$repo_url" "$target_dir"
+require_source() {
+  local target_dir="$1"
+  local name="$2"
+  local marker="$3"
+  if [ ! -f "${target_dir}/${marker}" ]; then
+    echo "missing uploaded ${name} source marker: ${target_dir}/${marker}" >&2
+    exit 1
   fi
 }
 
@@ -180,10 +198,10 @@ else
   git clone https://github.com/YOHO-ENT/stock-research-stack.git "$REMOTE_DIR"
 fi
 
-sync_repo "$MARKET_DATA_LAB_REPO_URL" "$MARKET_DATA_LAB_DIR_VALUE" main
-sync_repo "$FIRN_REPO_URL" "$FIRN_DIR_VALUE" main
-sync_repo "$TRADINGAGENTS_REPO_URL" "$TRADINGAGENTS_DIR_VALUE" main
-sync_repo "$PY_MOOMOO_API_REPO_URL" "$PY_MOOMOO_API_DIR_VALUE" main
+require_source "$MARKET_DATA_LAB_DIR_VALUE" "market-data-lab" "pyproject.toml"
+require_source "$FIRN_DIR_VALUE" "Firn" "global-market-agent/Dockerfile"
+require_source "$TRADINGAGENTS_DIR_VALUE" "TradingAgents" "pyproject.toml"
+require_source "$PY_MOOMOO_API_DIR_VALUE" "py-moomoo-api" "setup.py"
 
 cd "$REMOTE_DIR"
 previous_env="$(mktemp)"
@@ -349,6 +367,7 @@ main() {
   run_local_checks
   check_git_state
   resolve_auth
+  upload_source_archives
   deploy_remote
   verify_remote
   log "done"
