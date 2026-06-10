@@ -11,10 +11,12 @@
 		reverse_proxy market-data-lab-ui:80
 	}
 
-	redir /firn /firn/
 	handle /firn/api/* {
 		uri strip_prefix /firn
 		reverse_proxy firn-api:8000
+	}
+	handle /firn {
+		reverse_proxy firn-ui:3000
 	}
 	handle /firn/* {
 		reverse_proxy firn-ui:3000

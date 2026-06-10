@@ -112,7 +112,7 @@ curl -fsS http://127.0.0.1:8080/api/control/status
 curl -fsS http://127.0.0.1:8080/brief/
 curl -fsS http://127.0.0.1:8080/market/api/health
 curl -fsS http://127.0.0.1:8080/firn/api/health
-curl -fsS http://127.0.0.1:8080/agents/api/health
+curl -fsS http://127.0.0.1:8080/agents/health
 curl -fsS http://127.0.0.1:8080/moomoo/api/watchlists/status
 ```
 

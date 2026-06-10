@@ -328,6 +328,9 @@ HTML
 fi
 
 docker compose up -d --build
+# File bind mounts keep the original inode; after a git update, recreate Caddy
+# so it sees the current Caddyfile instead of the previous mounted file.
+docker compose up -d --force-recreate --no-deps caddy
 docker compose ps
 REMOTE
 }
@@ -357,7 +360,7 @@ verify_remote() {
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/firn/ && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/firn/api/health && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/agents/ && \
-    docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/agents/api/health && \
+    docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/agents/health && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/moomoo/ && \
     docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/moomoo/api/watchlists/status"
 }
