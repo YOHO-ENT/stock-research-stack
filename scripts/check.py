@@ -56,6 +56,10 @@ DRIFT_PATTERNS = {
     "currently needs",
     "may still need",
     "pipeline installed",
+    "implementation remains in the sibling repositories",
+    "remains pending in sibling repositories",
+    "implementation pending in sibling repos",
+    "TradingAgents does not yet consume Market Data Lab",
 }
 
 

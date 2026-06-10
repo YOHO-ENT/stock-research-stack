@@ -93,10 +93,13 @@ Non-flow:
 
 ## Market Data Lab to Firn
 
-Status: target contract documented; implementation pending in sibling repos.
+Status: current local v1. Market Data Lab can use this HTTP path when
+`FIRN_API_BASE_URL` is configured, and Firn accepts writes only when
+`FIRN_WATCHLIST_EDITABLE=true`.
 
 Purpose: Market Data Lab publishes a normalized universe/watchlist to Firn over
-HTTP, replacing the transitional `FIRN_WATCHLIST_PATH` file handoff.
+HTTP. The local `FIRN_WATCHLIST_PATH` file handoff remains a transitional
+fallback when `FIRN_API_BASE_URL` is not configured.
 
 Owner boundaries:
 
@@ -109,6 +112,7 @@ Base URLs:
 - Market Data Lab: `http://127.0.0.1:8010`
 - Firn API: `http://127.0.0.1:8000`
 - Suggested env in Market Data Lab: `FIRN_API_BASE_URL=http://127.0.0.1:8000`
+- Optional env in Market Data Lab: `FIRN_API_TOKEN=<future-token>`
 - Required Firn gate for writes: `FIRN_WATCHLIST_EDITABLE=true`
 
 Target Firn endpoint:
@@ -172,12 +176,15 @@ Non-flow:
 
 - research-stack must not enable `FIRN_WATCHLIST_PATH`.
 - Market Data Lab must not write Firn config files directly as the default stack
-  integration.
+  integration. The file fallback is transitional and should not be enabled from
+  research-stack.
 - Firn KB, audit logs, and runtime artifacts remain owned by Firn.
 
 ## TradingAgents to Market Data Lab
 
-Status: target contract documented; implementation pending in sibling repos.
+Status: current local v1. TradingAgents exposes its own Market Data Lab adapter
+for ticker selection and keeps manual ticker input available when Market Data
+Lab is down.
 
 Purpose: TradingAgents selects tickers from Market Data Lab instead of requiring
 manual ticker entry for every run.
@@ -194,6 +201,7 @@ Base URLs:
 - Market Data Lab: `http://127.0.0.1:8010`
 - TradingAgents API: `http://127.0.0.1:8002`
 - Suggested env in TradingAgents: `MARKET_DATA_LAB_BASE_URL=http://127.0.0.1:8010`
+- Optional env in TradingAgents: `MARKET_DATA_LAB_TIMEOUT_SECONDS=5`
 
 Provider endpoints:
 
@@ -257,7 +265,8 @@ Failure modes:
 
 - Market Data Lab `404` or empty group: show no selectable tickers for that
   group; do not fall back to reading files.
-- Market Data Lab `5xx` or timeout: keep manual ticker input available.
+- Market Data Lab `5xx` or timeout: TradingAgents returns an unavailable
+  adapter payload and keeps manual ticker input available.
 - TradingAgents `400`: request invalid or ticker preflight failed; show the API
   error to the operator.
 - TradingAgents `503`: provider key or market-data preflight unavailable; retry

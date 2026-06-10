@@ -81,7 +81,7 @@
       "notes": [
         "Reads moomoo via GET /api/research-universe/export.",
         "Must not read moomoo cache files directly.",
-        "HTTP Firn watchlist sync is documented in docs/http-contracts.md and remains pending in sibling repositories."
+        "HTTP Firn watchlist sync is implemented locally through FIRN_API_BASE_URL and documented in docs/http-contracts.md."
       ]
     },
     {
@@ -142,7 +142,7 @@
       ],
       "notes": [
         "Project default API port is 8000; research-stack reserves 8002 to avoid Firn.",
-        "Ticker selection from Market Data Lab is documented in docs/http-contracts.md and remains pending in sibling repositories.",
+        "Ticker selection from Market Data Lab is implemented locally through the TradingAgents /api/market-data adapter and documented in docs/http-contracts.md.",
         "Reports are markdown artifacts exposed by the TradingAgents API."
       ]
     },

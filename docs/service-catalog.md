@@ -58,10 +58,10 @@ Cross-project HTTP boundaries are documented in
 - Boundaries:
   - Reads moomoo via the `py-moomoo-api` HTTP export.
   - Must not read moomoo cache files directly.
-  - Firn watchlist file sync is a transitional manual option, not a default
+  - Firn watchlist file sync is a transitional manual fallback, not the default
     research-stack integration.
-  - Firn HTTP sync is documented in [HTTP contracts](http-contracts.md);
-    implementation remains in the sibling repositories.
+  - Firn HTTP sync is implemented locally through the contract documented in
+    [HTTP contracts](http-contracts.md).
 
 ## Firn
 
@@ -106,9 +106,8 @@ Cross-project HTTP boundaries are documented in
 - Boundaries:
   - Project default API port is `8000`; research-stack uses `8002` to avoid
     Firn.
-  - Ticker selection from Market Data Lab is documented in
-    [HTTP contracts](http-contracts.md); implementation remains in the sibling
-    repositories.
+  - Ticker selection from Market Data Lab is implemented locally through the
+    contract documented in [HTTP contracts](http-contracts.md).
   - Markdown reports remain generated and served by TradingAgents.
 
 ## DailyBrief

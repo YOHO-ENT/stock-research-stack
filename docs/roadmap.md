@@ -29,7 +29,9 @@ Status: implemented and deployed to the current IP-only Vultr host.
 - Add minimal contract examples and failure modes.
 
 Status: contracts are documented in [HTTP contracts](http-contracts.md);
-implementation remains in the sibling repositories.
+Market Data Lab has local Firn HTTP watchlist sync, and TradingAgents has a
+local Market Data Lab ticker selector. Production deployment of these sibling
+service integrations remains future work.
 
 ## Phase 4: Local Compose Draft
 
