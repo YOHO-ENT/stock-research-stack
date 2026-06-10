@@ -83,7 +83,9 @@ def apply_runtime_overrides(raw: dict[str, Any]) -> dict[str, Any]:
         public_url = env_text("RESEARCH_HUB_PUBLIC_URL")
         if public_url:
             service["public_url"] = public_url
-            service["public_health_check_url"] = join_url(public_url, "/api/services")
+        health_url = env_text("RESEARCH_HUB_HEALTH_CHECK_URL")
+        if health_url:
+            service["public_health_check_url"] = health_url
     elif service_id == "dailybrief-pipeline":
         reports_url = env_text("DAILYBRIEF_PUBLIC_REPORTS_URL")
         if reports_url:

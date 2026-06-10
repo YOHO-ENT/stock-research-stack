@@ -9,6 +9,7 @@ HTTPS.
 | Setting | Value |
 |---|---|
 | Public URL | `http://149.28.156.116` |
+| Research Hub self-health URL | `http://127.0.0.1:3030/api/services` |
 | SSH target | `root@149.28.156.116` |
 | SSH key | `~/.ssh/research_stack_vultr` |
 | Public ports | `80`, `22` |
@@ -96,6 +97,8 @@ Expected behavior:
 
 - Research Hub is reachable at `http://149.28.156.116`.
 - Production catalog shows Research Hub and DailyBrief only.
+- Research Hub status is `ok`; its self-health check uses the container-local
+  URL to avoid public-IP hairpin timeouts.
 - DailyBrief is `skipped` until `DAILYBRIEF_PUBLIC_REPORTS_URL` is set.
 - Deprecated news-project references are absent.
 
