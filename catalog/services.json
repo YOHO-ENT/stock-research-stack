@@ -175,8 +175,9 @@
         "DailyBrief is the current daily report pipeline tracked by research-stack.",
         "DailyBrief has no database, web server, web framework, or frontend service.",
         "Reports are static files under daily_reports/<YYYY-MM-DD>/.",
-        "Production Hub keeps DailyBrief visible and skipped until DAILYBRIEF_PUBLIC_REPORTS_URL is set.",
-        "Useful commands include dailybrief daily, dailybrief build-site, dailybrief open, and dailybrief run-scheduled."
+        "Production Hub serves DailyBrief static reports at /brief/.",
+        "Production health checks /brief/health.json generated after successful report publish.",
+        "Useful commands include dailybrief run --live --confirm-live --build-site, dailybrief build-site, dailybrief open, and dailybrief run-scheduled."
       ]
     }
   ]

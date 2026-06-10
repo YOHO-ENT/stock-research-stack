@@ -58,13 +58,15 @@ store secrets in git.
   API plus frontend web console.
 - `DailyBrief` is Python-only: no database, server, or frontend framework. It
   can run via scheduler/GitHub Actions and publish static reports. The current
-  control-plane deployment only serves a static report directory at `/brief/`;
-  it does not run the DailyBrief pipeline.
+  control-plane deployment serves static reports at `/brief/`; the DailyBrief
+  pipeline can run on the same VPS through systemd and publish `health.json`.
 
 ## Current Operations
 
 - `scripts/deploy_vultr.sh` deploys the current `main` branch to the existing
   host.
+- `scripts/deploy_dailybrief_vultr.sh` deploys the DailyBrief systemd timer and
+  publishes static reports into the Research Hub report mount.
 - Caddy Basic Auth protects the IP-only site. The server `.env` stores only the
   Caddy hash, not the plaintext password.
 - DailyBrief reports are served from

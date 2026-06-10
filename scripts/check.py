@@ -38,6 +38,7 @@ EXPECTED_FILES = {
     "research_hub/static/index.html",
     "research_hub/static/styles.css",
     "scripts/check.py",
+    "scripts/deploy_dailybrief_vultr.sh",
     "scripts/deploy_vultr.sh",
 }
 

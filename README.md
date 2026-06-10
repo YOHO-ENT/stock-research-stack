@@ -113,4 +113,10 @@ Deploy the current `main` branch to the existing Vultr host:
 scripts/deploy_vultr.sh
 ```
 
+Deploy the DailyBrief systemd pipeline and publish reports into `/brief/`:
+
+```bash
+scripts/deploy_dailybrief_vultr.sh
+```
+
 Git history is used only for this orchestration layer.
