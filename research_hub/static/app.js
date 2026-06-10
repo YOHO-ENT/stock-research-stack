@@ -183,7 +183,7 @@ function updateNavState() {
 }
 
 function updateCounts(services) {
-  const counts = { ok: 0, down: 0, skipped: 0 };
+  const counts = { ok: 0, warn: 0, down: 0, skipped: 0 };
   for (const service of services) {
     const status = getHealth(service.id).status || "unknown";
     if (counts[status] !== undefined) {
@@ -192,11 +192,12 @@ function updateCounts(services) {
   }
 
   document.querySelector("#ok-count").textContent = counts.ok;
+  document.querySelector("#warn-count").textContent = counts.warn;
   document.querySelector("#down-count").textContent = counts.down;
   document.querySelector("#skipped-count").textContent = counts.skipped;
   document.querySelector("#checked-at").textContent = formatTime(state.checkedAt);
   document.querySelector("#sidebar-ok-count").textContent = counts.ok;
-  document.querySelector("#sidebar-down-count").textContent = counts.down;
+  document.querySelector("#sidebar-down-count").textContent = counts.down + counts.warn;
 
   const total = services.length;
   if (!total) {
@@ -205,6 +206,9 @@ function updateCounts(services) {
   } else if (counts.down > 0) {
     summary.textContent = `${counts.down} down`;
     overallDot.className = "health-dot down";
+  } else if (counts.warn > 0) {
+    summary.textContent = `${counts.warn} warning${counts.warn === 1 ? "" : "s"}`;
+    overallDot.className = "health-dot warn";
   } else if (counts.ok > 0) {
     summary.textContent = "Healthy";
     overallDot.className = "health-dot ok";

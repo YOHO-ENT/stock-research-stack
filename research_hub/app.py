@@ -20,6 +20,7 @@ DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 3030
 DEFAULT_TIMEOUT_SECONDS = 1.5
 DEFAULT_CATALOG_MODE = "local"
+WARN_HEALTH_STATUSES = {"cache_missing", "degraded", "disabled", "unconfigured", "warn", "warning"}
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = REPO_ROOT / "catalog" / "services.json"
@@ -476,7 +477,13 @@ def json_health_detail(body: bytes, content_type: str) -> dict[str, str] | None:
 
     raw_status = payload.get("status")
     status_text = str(raw_status).strip() if raw_status is not None else ""
-    result_status = "ok" if not status_text or status_text.lower() == "ok" else "down"
+    status_key = status_text.lower()
+    if not status_key or status_key == "ok":
+        result_status = "ok"
+    elif status_key in WARN_HEALTH_STATUSES:
+        result_status = "warn"
+    else:
+        result_status = "down"
 
     message_parts = []
     latest = payload.get("latest_report_date")

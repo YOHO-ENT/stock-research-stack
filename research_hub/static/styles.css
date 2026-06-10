@@ -313,6 +313,10 @@ h1 {
   background: var(--color-negative);
 }
 
+.health-dot.warn {
+  background: var(--color-warning);
+}
+
 .health-dot.skipped,
 .health-dot.unknown {
   background: var(--color-text-secondary);
@@ -351,7 +355,7 @@ h1 {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
