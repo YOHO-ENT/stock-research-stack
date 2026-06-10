@@ -51,9 +51,9 @@ Status: implemented in this repository as a local control-plane capability.
 - Keep secrets in private env files.
 - Document services that are intentionally not containerized yet.
 
-Status: partially implemented for the Research Hub control plane only. Sibling
-projects remain independently deployed or local-only until the local loop smoke
-check is stable and they have explicit container contracts.
+Status: implemented for the managed deployment set. Research Hub/Caddy,
+Market Data Lab API/UI, Firn API/UI, TradingAgents API/UI, and py-moomoo
+Account Web have Compose definitions while DailyBrief remains systemd.
 
 ## Phase 5: Vultr Deployment
 
@@ -64,6 +64,7 @@ check is stable and they have explicit container contracts.
 - Define persistent volumes and backup paths.
 
 Status: DailyBrief systemd publishing, `/brief/` static report serving, and
-production smoke checks are implemented. TLS, DNS, access control for sibling
-services, sibling service deployment, and broader backup policy remain future
-work.
+production smoke checks are implemented. Expanded IP-only Compose deployment
+for managed sibling services is implemented in the control layer. TLS, DNS,
+stronger access control, OpenD production exposure decisions, and broader backup
+policy remain future work.

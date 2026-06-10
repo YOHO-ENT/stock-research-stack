@@ -88,10 +88,18 @@ http://149.28.156.116
 ```
 
 The IP-only deployment uses Docker Compose plus Caddy on port `80`. It does not
-use a domain, HTTPS, Kubernetes, DNS changes, or sibling project deployments.
-Production catalog mode shows Research Hub and DailyBrief only. Caddy protects
-the site with temporary Basic Auth and serves DailyBrief static reports under
-`/brief/`.
+use a domain, HTTPS, Kubernetes, or DNS changes. Caddy protects the site with
+temporary Basic Auth and routes:
+
+- `/` to Research Hub
+- `/brief/` to DailyBrief static reports
+- `/market/` to Market Data Lab UI/API
+- `/firn/` to Firn UI/API
+- `/agents/` to TradingAgents UI/API
+- `/moomoo/` to py-moomoo Account Web
+
+DailyBrief remains a systemd timer/publisher, not a Compose service. moomoo
+OpenD `11111` is not exposed publicly.
 
 See [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md).
 See [DailyBrief production runbook](docs/dailybrief-production-runbook.md) for

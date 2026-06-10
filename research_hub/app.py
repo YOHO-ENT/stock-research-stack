@@ -43,6 +43,16 @@ PUBLIC_SERVICE_FIELDS = {
     "notes",
 }
 
+SERVICE_PUBLIC_ENV = {
+    "market-data-lab-api": ("MARKET_DATA_LAB_API_PUBLIC_URL", "MARKET_DATA_LAB_API_PUBLIC_HEALTH_CHECK_URL"),
+    "market-data-lab-ui": ("MARKET_DATA_LAB_UI_PUBLIC_URL", "MARKET_DATA_LAB_UI_PUBLIC_HEALTH_CHECK_URL"),
+    "firn-api": ("FIRN_API_PUBLIC_URL", "FIRN_API_PUBLIC_HEALTH_CHECK_URL"),
+    "firn-ui": ("FIRN_UI_PUBLIC_URL", "FIRN_UI_PUBLIC_HEALTH_CHECK_URL"),
+    "tradingagents-api": ("TRADINGAGENTS_API_PUBLIC_URL", "TRADINGAGENTS_API_PUBLIC_HEALTH_CHECK_URL"),
+    "tradingagents-ui": ("TRADINGAGENTS_UI_PUBLIC_URL", "TRADINGAGENTS_UI_PUBLIC_HEALTH_CHECK_URL"),
+    "moomoo-account-web": ("MOOMOO_ACCOUNT_WEB_PUBLIC_URL", "MOOMOO_ACCOUNT_WEB_PUBLIC_HEALTH_CHECK_URL"),
+}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
@@ -94,6 +104,14 @@ def apply_runtime_overrides(raw: dict[str, Any]) -> dict[str, Any]:
         reports_health_url = env_text("DAILYBRIEF_REPORTS_HEALTH_CHECK_URL")
         if reports_health_url:
             service["public_health_check_url"] = reports_health_url
+    elif service_id in SERVICE_PUBLIC_ENV:
+        public_env, health_env = SERVICE_PUBLIC_ENV[service_id]
+        public_url = env_text(public_env)
+        if public_url:
+            service["public_url"] = public_url
+        health_url = env_text(health_env)
+        if health_url:
+            service["public_health_check_url"] = health_url
     return service
 
 

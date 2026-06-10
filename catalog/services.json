@@ -31,6 +31,7 @@
         "Implemented as a stdlib-only local Python server.",
         "Run with python3 -m research_hub --host 127.0.0.1 --port 3030.",
         "Production IP-only deployment uses RESEARCH_HUB_PUBLIC_URL=http://149.28.156.116.",
+        "Expanded production deployment routes sibling services through Caddy path prefixes.",
         "Must not iframe sibling frontends.",
         "Must not merge sibling UI code."
       ]
@@ -64,7 +65,8 @@
       "notes": [
         "Exports research universe at GET /api/research-universe/export.",
         "May call Market Data Lab read-only snapshot and status endpoints.",
-        "Watchlists default to local cache and require manual OpenD sync in the source project."
+        "Watchlists default to local cache and require manual OpenD sync in the source project.",
+        "Vultr deployment exposes Account Web behind Basic Auth at /moomoo/ but does not expose OpenD 11111."
       ]
     },
     {
@@ -81,7 +83,8 @@
       "notes": [
         "Reads moomoo via GET /api/research-universe/export.",
         "Must not read moomoo cache files directly.",
-        "HTTP Firn watchlist sync is implemented locally through FIRN_API_BASE_URL and documented in docs/http-contracts.md."
+        "HTTP Firn watchlist sync is implemented locally through FIRN_API_BASE_URL and documented in docs/http-contracts.md.",
+        "Vultr deployment routes API/UI through /market/."
       ]
     },
     {
@@ -126,7 +129,8 @@
         "firn-api"
       ],
       "notes": [
-        "Next.js frontend should stay independent."
+        "Next.js frontend should stay independent.",
+        "Vultr deployment routes API/UI through /firn/."
       ]
     },
     {
@@ -143,7 +147,8 @@
       "notes": [
         "Project default API port is 8000; research-stack reserves 8002 to avoid Firn.",
         "Ticker selection from Market Data Lab is implemented locally through the TradingAgents /api/market-data adapter and documented in docs/http-contracts.md.",
-        "Reports are markdown artifacts exposed by the TradingAgents API."
+        "Reports are markdown artifacts exposed by the TradingAgents API.",
+        "Vultr deployment routes API/UI through /agents/."
       ]
     },
     {
@@ -158,7 +163,8 @@
         "tradingagents-api"
       ],
       "notes": [
-        "Set VITE_API_BASE_URL to http://127.0.0.1:8002 in research-stack local runs."
+        "Set VITE_API_BASE_URL to http://127.0.0.1:8002 in research-stack local runs.",
+        "Production build uses VITE_API_BASE_URL=/agents."
       ]
     },
     {

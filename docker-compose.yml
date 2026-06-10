@@ -1,4 +1,176 @@
 services:
+  market-data-lab-api:
+    build:
+      context: ${MARKET_DATA_LAB_DIR:-../market-data-lab}
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      MOOMOO_ACCOUNT_WEB_URL: http://moomoo-account-web:8501
+      FIRN_API_BASE_URL: http://firn-api:8000
+      FIRN_API_TOKEN: ${FIRN_API_TOKEN:-}
+      FIRN_API_TIMEOUT_SECONDS: ${FIRN_API_TIMEOUT_SECONDS:-10}
+      MARKET_DATA_UNIVERSE_EDITABLE: ${MARKET_DATA_UNIVERSE_EDITABLE:-false}
+      MOOMOO_EXPORT_HOST: ${MOOMOO_EXPORT_HOST:-127.0.0.1}
+      MOOMOO_EXPORT_PORT: ${MOOMOO_EXPORT_PORT:-11111}
+      MOOMOO_EXPORT_MARKET: ${MOOMOO_EXPORT_MARKET:-US}
+      MOOMOO_EXPORT_GROUP_TYPE: ${MOOMOO_EXPORT_GROUP_TYPE:-CUSTOM}
+    volumes:
+      - market_data_lab_data:/app/data
+      - market_data_lab_config:/app/config
+    expose:
+      - "8010"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8010/health', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  market-data-lab-ui:
+    build:
+      context: ${MARKET_DATA_LAB_DIR:-../market-data-lab}/ui
+      dockerfile: Dockerfile
+      args:
+        VITE_BASE_PATH: /market/
+        VITE_MARKET_DATA_API_BASE_URL: /market/api
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      market-data-lab-api:
+        condition: service_healthy
+
+  firn-api:
+    build:
+      context: ${FIRN_DIR:-../Firn}
+      dockerfile: global-market-agent/Dockerfile
+    restart: unless-stopped
+    environment:
+      JWT_SECRET: ${FIRN_JWT_SECRET:?set FIRN_JWT_SECRET in .env}
+      ADMIN_PASSWORD: ${FIRN_ADMIN_PASSWORD:?set FIRN_ADMIN_PASSWORD in .env}
+      FIRN_WATCHLIST_EDITABLE: ${FIRN_WATCHLIST_EDITABLE:-true}
+      MARKET_DATA_UNIVERSE_PATH: ${MARKET_DATA_UNIVERSE_PATH:-}
+      ALLOWED_ORIGINS: ${FIRN_ALLOWED_ORIGINS:-http://149.28.156.116}
+      LLM_PROVIDER: ${FIRN_LLM_PROVIDER:-}
+      DEEPSEEK_API_KEY: ${FIRN_DEEPSEEK_API_KEY:-}
+      OPENAI_API_KEY: ${FIRN_OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${FIRN_GEMINI_API_KEY:-}
+      TAVILY_API_KEY: ${FIRN_TAVILY_API_KEY:-}
+    volumes:
+      - firn_knowledge_base:/app/knowledge_base
+      - firn_logs:/app/logs
+      - firn_config:/app/config
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  firn-ui:
+    build:
+      context: ${FIRN_DIR:-../Firn}/web-ui
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: /firn
+        NEXT_PUBLIC_BASE_PATH: /firn
+        NEXT_PUBLIC_MARKET_DATA_LAB_UI_URL: /market/
+    restart: unless-stopped
+    expose:
+      - "3000"
+    depends_on:
+      firn-api:
+        condition: service_healthy
+
+  tradingagents-api:
+    build:
+      context: ${TRADINGAGENTS_DIR:-../TradingAgents}
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      TRADINGAGENTS_API_HOST: 0.0.0.0
+      TRADINGAGENTS_API_PORT: 8002
+      MARKET_DATA_LAB_BASE_URL: http://market-data-lab-api:8010
+      MARKET_DATA_LAB_TIMEOUT_SECONDS: ${MARKET_DATA_LAB_TIMEOUT_SECONDS:-5}
+      TRADINGAGENTS_RESULTS_DIR: /data/results
+      TRADINGAGENTS_CACHE_DIR: /data/cache
+      TRADINGAGENTS_MEMORY_LOG_PATH: /data/memory/trading_memory.md
+      TRADINGAGENTS_LLM_PROVIDER: ${TRADINGAGENTS_LLM_PROVIDER:-}
+      TRADINGAGENTS_DEEP_THINK_LLM: ${TRADINGAGENTS_DEEP_THINK_LLM:-}
+      TRADINGAGENTS_QUICK_THINK_LLM: ${TRADINGAGENTS_QUICK_THINK_LLM:-}
+      OPENAI_API_KEY: ${TRADINGAGENTS_OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${TRADINGAGENTS_ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${TRADINGAGENTS_GOOGLE_API_KEY:-}
+      FINNHUB_API_KEY: ${TRADINGAGENTS_FINNHUB_API_KEY:-}
+    volumes:
+      - tradingagents_data:/data
+    expose:
+      - "8002"
+    depends_on:
+      market-data-lab-api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  tradingagents-ui:
+    build:
+      context: ${TRADINGAGENTS_DIR:-../TradingAgents}/frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_BASE_PATH: /agents/
+        VITE_API_BASE_URL: /agents
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      tradingagents-api:
+        condition: service_healthy
+
+  moomoo-account-web:
+    build:
+      context: ${PY_MOOMOO_API_DIR:-../py-moomoo-api}
+      dockerfile: Dockerfile.account-web
+    restart: unless-stopped
+    environment:
+      MOOMOO_ACCOUNT_WEB_CACHE_DIR: /data/account_web
+      MOOMOO_MARKET_DATA_API_URL: http://market-data-lab-api:8010
+      MOOMOO_MARKET_DATA_UI_URL: /market/
+      MOOMOO_ACCOUNT_WEB_ALLOW_REMOTE: ${MOOMOO_ACCOUNT_WEB_ALLOW_REMOTE:-0}
+    volumes:
+      - moomoo_account_web_data:/data/account_web
+    expose:
+      - "8501"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/api/watchlists/status', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
   research-hub:
     build:
       context: .
@@ -12,8 +184,37 @@ services:
       RESEARCH_HUB_PUBLIC_URL: ${RESEARCH_HUB_PUBLIC_URL:-http://149.28.156.116}
       DAILYBRIEF_PUBLIC_REPORTS_URL: ${DAILYBRIEF_PUBLIC_REPORTS_URL:-}
       DAILYBRIEF_REPORTS_HEALTH_CHECK_URL: ${DAILYBRIEF_REPORTS_HEALTH_CHECK_URL:-http://caddy:8080/brief/health.json}
+      DAILYBRIEF_REPORTS_PATH: /srv/dailybrief-reports
+      MARKET_DATA_API_URL: http://market-data-lab-api:8010
+      FIRN_API_URL: http://firn-api:8000
+      TRADINGAGENTS_API_URL: http://tradingagents-api:8002
+      MARKET_DATA_LAB_API_PUBLIC_URL: ${MARKET_DATA_LAB_API_PUBLIC_URL:-http://149.28.156.116/market/api/}
+      MARKET_DATA_LAB_API_PUBLIC_HEALTH_CHECK_URL: ${MARKET_DATA_LAB_API_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/market/api/health}
+      MARKET_DATA_LAB_UI_PUBLIC_URL: ${MARKET_DATA_LAB_UI_PUBLIC_URL:-http://149.28.156.116/market/}
+      MARKET_DATA_LAB_UI_PUBLIC_HEALTH_CHECK_URL: ${MARKET_DATA_LAB_UI_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/market/}
+      FIRN_API_PUBLIC_URL: ${FIRN_API_PUBLIC_URL:-http://149.28.156.116/firn/api/}
+      FIRN_API_PUBLIC_HEALTH_CHECK_URL: ${FIRN_API_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/firn/api/health}
+      FIRN_UI_PUBLIC_URL: ${FIRN_UI_PUBLIC_URL:-http://149.28.156.116/firn/}
+      FIRN_UI_PUBLIC_HEALTH_CHECK_URL: ${FIRN_UI_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/firn/}
+      TRADINGAGENTS_API_PUBLIC_URL: ${TRADINGAGENTS_API_PUBLIC_URL:-http://149.28.156.116/agents/api/}
+      TRADINGAGENTS_API_PUBLIC_HEALTH_CHECK_URL: ${TRADINGAGENTS_API_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/agents/api/health}
+      TRADINGAGENTS_UI_PUBLIC_URL: ${TRADINGAGENTS_UI_PUBLIC_URL:-http://149.28.156.116/agents/}
+      TRADINGAGENTS_UI_PUBLIC_HEALTH_CHECK_URL: ${TRADINGAGENTS_UI_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/agents/}
+      MOOMOO_ACCOUNT_WEB_PUBLIC_URL: ${MOOMOO_ACCOUNT_WEB_PUBLIC_URL:-http://149.28.156.116/moomoo/}
+      MOOMOO_ACCOUNT_WEB_PUBLIC_HEALTH_CHECK_URL: ${MOOMOO_ACCOUNT_WEB_PUBLIC_HEALTH_CHECK_URL:-http://caddy:8080/moomoo/api/watchlists/status}
     expose:
       - "3030"
+    volumes:
+      - ./runtime/dailybrief-reports:/srv/dailybrief-reports:ro
+    depends_on:
+      market-data-lab-api:
+        condition: service_healthy
+      firn-api:
+        condition: service_healthy
+      tradingagents-api:
+        condition: service_healthy
+      moomoo-account-web:
+        condition: service_healthy
     healthcheck:
       test:
         [
@@ -33,6 +234,14 @@ services:
     depends_on:
       research-hub:
         condition: service_healthy
+      market-data-lab-ui:
+        condition: service_started
+      firn-ui:
+        condition: service_started
+      tradingagents-ui:
+        condition: service_started
+      moomoo-account-web:
+        condition: service_healthy
     environment:
       HUB_AUTH_USER: ${HUB_AUTH_USER:?set HUB_AUTH_USER in .env}
       HUB_AUTH_HASH: ${HUB_AUTH_HASH:?set HUB_AUTH_HASH in .env}
@@ -47,3 +256,10 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  market_data_lab_data:
+  market_data_lab_config:
+  firn_knowledge_base:
+  firn_logs:
+  firn_config:
+  tradingagents_data:
+  moomoo_account_web_data:

@@ -1,8 +1,8 @@
 # Vultr Deployment Plan
 
-This is the deployment plan for the stack control layer. The current supported
-deployment is IP-only Research Hub on the existing Vultr instance. It does not
-create a new server, change DNS, configure HTTPS, deploy sibling projects, or
+This is the deployment plan for the stack control layer. The current target
+deployment is the expanded IP-only stack on the existing Vultr instance. It does
+not create a new server, change DNS, configure HTTPS, expose moomoo OpenD, or
 store secrets in git.
 
 ## Direction
@@ -20,6 +20,11 @@ store secrets in git.
 | Public Route | Internal Target | Notes |
 |---|---|---|
 | `http://149.28.156.116` | Research Hub | Current IP-only deployment. |
+| `http://149.28.156.116/brief/` | DailyBrief static reports | Current systemd publisher output. |
+| `http://149.28.156.116/market/` | Market Data Lab UI/API | Expanded Compose route. |
+| `http://149.28.156.116/firn/` | Firn UI/API | Expanded Compose route. |
+| `http://149.28.156.116/agents/` | TradingAgents UI/API | Expanded Compose route. |
+| `http://149.28.156.116/moomoo/` | py-moomoo Account Web | Read-only Account Web route; OpenD is not exposed. |
 | `research.example.com` | Research Hub | Future domain and HTTPS route. |
 | `market.example.com` | Market Data Lab UI/API | UI plus API route. |
 | `firn.example.com` | Firn UI/API | Auth, KB, audit, analysis. |
@@ -28,11 +33,10 @@ store secrets in git.
 
 ## Compose Strategy
 
-- Compose currently starts Research Hub plus Caddy only.
-- Future Compose expansion should happen only after the local research loop
-  smoke check is stable for the target services.
-- Future Compose expansion should build or reference each project from its own
-  directory.
+- Compose starts Research Hub, Caddy, Market Data Lab API/UI, Firn API/UI,
+  TradingAgents API/UI, and py-moomoo Account Web.
+- DailyBrief remains a systemd timer/publisher and is not moved into Compose.
+- Compose builds or references each project from its own directory.
 - Mount each project's data, logs, reports, and cache paths explicitly.
 - Keep secrets out of git and inject them through private env files or Vultr
   secrets management.
@@ -51,13 +55,12 @@ store secrets in git.
 
 ## Service Notes
 
-- `py-moomoo-api` depends on local moomoo OpenD. Current Vultr expansion must
-  not expose moomoo account capabilities on the VPS.
-- `market-data-lab` has no existing Dockerfile in Phase 1 research; it needs a
-  future containerization pass.
-- `Firn` has Dockerfiles for API and UI, but no top-level Compose file.
-- `TradingAgents` has a Dockerfile and Compose for CLI/Ollama, but not for its
-  API plus frontend web console.
+- `py-moomoo-api` depends on local moomoo OpenD for live account reads. The
+  Vultr route exposes Account Web behind Basic Auth but does not expose OpenD
+  `11111`.
+- `market-data-lab` now has API/UI container definitions for stack deployment.
+- `Firn` uses its existing API/UI Dockerfiles with `/firn` base-path support.
+- `TradingAgents` now has API/UI container definitions for stack deployment.
 - `DailyBrief` is Python-only: no database, server, or frontend framework. It
   can run via scheduler/GitHub Actions and publish static reports. The current
   control-plane deployment serves static reports at `/brief/`; the DailyBrief
@@ -67,7 +70,7 @@ store secrets in git.
 ## Current Operations
 
 - `scripts/deploy_vultr.sh` deploys the current `main` branch to the existing
-  host.
+  host and updates managed sibling repos under `/opt`.
 - `scripts/deploy_dailybrief_vultr.sh` deploys the DailyBrief systemd timer and
   publishes static reports into the Research Hub report mount.
 - Caddy Basic Auth protects the IP-only site. The server `.env` stores only the
@@ -75,14 +78,13 @@ store secrets in git.
 - DailyBrief reports are served from
   `/opt/research-stack/runtime/dailybrief-reports`.
 
-## Deployment Acceptance For A Later Phase
+## Deployment Acceptance
 
-- DNS, TLS, and access control are decided before exposing sibling services.
-- First sibling deployments should be no-trading-risk services: Market Data Lab
-  read-only/cache service, TradingAgents analysis service, and Firn audit or
-  watchlist API.
-- moomoo account access stays local unless a separate security decision changes
-  that boundary.
+- All public routes continue to return `401` without Basic Auth.
+- Caddy internal checks pass for Hub, DailyBrief, Market Data Lab, Firn,
+  TradingAgents, and py-moomoo Account Web.
+- moomoo OpenD stays private unless a separate security decision changes that
+  boundary.
 - Public TLS works for each enabled hostname.
 - Reverse proxy health checks use documented health endpoints.
 - No service exposes secrets in logs, static assets, or client-side config.

@@ -3,6 +3,37 @@
 }
 
 (research_stack_routes) {
+	redir /market /market/
+	handle_path /market/api/* {
+		reverse_proxy market-data-lab-api:8010
+	}
+	handle_path /market/* {
+		reverse_proxy market-data-lab-ui:80
+	}
+
+	redir /firn /firn/
+	handle /firn/api/* {
+		uri strip_prefix /firn
+		reverse_proxy firn-api:8000
+	}
+	handle /firn/* {
+		reverse_proxy firn-ui:3000
+	}
+
+	redir /agents /agents/
+	handle /agents/api/* {
+		uri strip_prefix /agents
+		reverse_proxy tradingagents-api:8002
+	}
+	handle_path /agents/* {
+		reverse_proxy tradingagents-ui:80
+	}
+
+	redir /moomoo /moomoo/
+	handle_path /moomoo/* {
+		reverse_proxy moomoo-account-web:8501
+	}
+
 	redir /brief /brief/
 
 	handle_path /brief/* {

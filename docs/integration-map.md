@@ -31,8 +31,8 @@ not a preferred integration mechanism.
 - Market Data Lab still keeps a local `FIRN_WATCHLIST_PATH` file-sync fallback.
   This is transitional and manual; research-stack documents HTTP as the default
   stack integration.
-- TradingAgents ticker selection is implemented for local API/UI use, but not
-  deployed as part of the current IP-only Vultr stack.
+- TradingAgents ticker selection is implemented for API/UI use and is included
+  in the expanded IP-only Vultr Compose route.
 - Research Hub v1 is deployed locally and on the current IP-only Vultr host.
 - DailyBrief systemd publishing is running on the Vultr host and publishes
   static reports plus `health.json` into the Research Hub `/brief/` mount.
