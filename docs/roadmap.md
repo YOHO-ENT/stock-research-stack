@@ -19,14 +19,17 @@ Status: implemented in this repository.
 - Serve DailyBrief static report artifacts from `/brief/`.
 - Keep the production catalog limited to Research Hub and DailyBrief.
 
-Status: implemented in this repository; the Vultr host may still need to be
-updated to the latest commit.
+Status: implemented and deployed to the current IP-only Vultr host.
 
 ## Phase 3: HTTP Contract Hardening
 
 - Define a Market Data Lab to Firn watchlist HTTP contract.
+- Define a TradingAgents ticker-selection contract from Market Data Lab.
 - Replace local file-sync assumptions with explicit API handoff docs.
 - Add minimal contract examples and failure modes.
+
+Status: contracts are documented in [HTTP contracts](http-contracts.md);
+implementation remains in the sibling repositories.
 
 ## Phase 4: Local Compose Draft
 
@@ -46,3 +49,7 @@ container contracts.
 - Verify production health checks and restart policy.
 - Add TLS and hostnames when DNS is ready.
 - Define persistent volumes and backup paths.
+
+Status: DailyBrief systemd publishing, `/brief/` static report serving, and
+production smoke checks are implemented. TLS, DNS, sibling service deployment,
+and broader backup policy remain future work.

@@ -81,7 +81,7 @@
       "notes": [
         "Reads moomoo via GET /api/research-universe/export.",
         "Must not read moomoo cache files directly.",
-        "HTTP Firn watchlist sync is the target integration direction."
+        "HTTP Firn watchlist sync is documented in docs/http-contracts.md and remains pending in sibling repositories."
       ]
     },
     {
@@ -111,7 +111,7 @@
       "notes": [
         "Authenticated routes require Firn auth state.",
         "Research Hub health checks should use /api/health.",
-        "Future Market Data Lab watchlist sync should use HTTP rather than file coupling."
+        "Market Data Lab watchlist sync should use the HTTP contract in docs/http-contracts.md rather than file coupling."
       ]
     },
     {
@@ -142,7 +142,7 @@
       ],
       "notes": [
         "Project default API port is 8000; research-stack reserves 8002 to avoid Firn.",
-        "Future ticker selection should come from Market Data Lab via HTTP.",
+        "Ticker selection from Market Data Lab is documented in docs/http-contracts.md and remains pending in sibling repositories.",
         "Reports are markdown artifacts exposed by the TradingAgents API."
       ]
     },

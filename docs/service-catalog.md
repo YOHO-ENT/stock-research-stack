@@ -4,6 +4,9 @@ This catalog describes the projects managed by `research-stack` during Phase 1.
 It is documentation for orchestration only; it does not move code or own the
 runtime state of the sibling projects.
 
+Cross-project HTTP boundaries are documented in
+[HTTP contracts](http-contracts.md).
+
 ## Research Hub
 
 - Path: `/Users/yongnahwa/Desktop/research-stack`
@@ -57,6 +60,8 @@ runtime state of the sibling projects.
   - Must not read moomoo cache files directly.
   - Firn watchlist file sync is a transitional manual option, not a default
     research-stack integration.
+  - Firn HTTP sync is documented in [HTTP contracts](http-contracts.md);
+    implementation remains in the sibling repositories.
 
 ## Firn
 
@@ -80,6 +85,8 @@ runtime state of the sibling projects.
   - Many endpoints depend on Firn auth state.
   - Health checks should use `GET /api/health`.
   - KB, logs, and audit artifacts remain owned by Firn.
+  - Market Data Lab watchlist sync should use the HTTP contract rather than
+    direct file writes.
 
 ## TradingAgents
 
@@ -99,7 +106,9 @@ runtime state of the sibling projects.
 - Boundaries:
   - Project default API port is `8000`; research-stack uses `8002` to avoid
     Firn.
-  - Future ticker selection should come from Market Data Lab via HTTP.
+  - Ticker selection from Market Data Lab is documented in
+    [HTTP contracts](http-contracts.md); implementation remains in the sibling
+    repositories.
   - Markdown reports remain generated and served by TradingAgents.
 
 ## DailyBrief

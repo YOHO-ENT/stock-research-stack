@@ -59,7 +59,8 @@ store secrets in git.
 - `DailyBrief` is Python-only: no database, server, or frontend framework. It
   can run via scheduler/GitHub Actions and publish static reports. The current
   control-plane deployment serves static reports at `/brief/`; the DailyBrief
-  pipeline can run on the same VPS through systemd and publish `health.json`.
+  pipeline currently runs on the same VPS through systemd and publishes
+  `health.json`.
 
 ## Current Operations
 

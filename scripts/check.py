@@ -25,6 +25,7 @@ EXPECTED_FILES = {
     "docker-compose.yml",
     "docs/ip-only-vultr-deployment.md",
     "docs/dailybrief-production-runbook.md",
+    "docs/http-contracts.md",
     "docs/integration-map.md",
     "docs/local-start-plan.md",
     "docs/operating-model.md",
@@ -49,6 +50,12 @@ FORBIDDEN_PATTERNS = {
     "US Equity " + "News",
     "us-" + "equity-" + "news",
     "<" + "ifr" + "ame",
+}
+
+DRIFT_PATTERNS = {
+    "currently needs",
+    "may still need",
+    "pipeline installed",
 }
 
 
@@ -126,6 +133,9 @@ def check_forbidden_patterns() -> list[str]:
         for pattern in FORBIDDEN_PATTERNS:
             if pattern in text:
                 failures.append(f"forbidden pattern {pattern!r} in {path.relative_to(ROOT)}")
+        for pattern in DRIFT_PATTERNS:
+            if pattern in text:
+                failures.append(f"stale deployment wording {pattern!r} in {path.relative_to(ROOT)}")
     return failures
 
 

@@ -94,6 +94,7 @@ This repository contains:
 
 - [Service catalog](docs/service-catalog.md)
 - [Integration map](docs/integration-map.md)
+- [HTTP contracts](docs/http-contracts.md)
 - [Ports](docs/ports.md)
 - [Local start plan](docs/local-start-plan.md)
 - [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md)
