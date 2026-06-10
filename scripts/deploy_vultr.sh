@@ -224,7 +224,7 @@ verify_remote() {
   [ "$code" = "401" ] || fail "expected unauthenticated / to return 401, got ${code}"
 
   log "verifying remote internal endpoints"
-  ssh_cmd "cd '$REMOTE_DIR' && docker compose ps && curl -fsS http://127.0.0.1:8080/ >/dev/null && curl -fsS http://127.0.0.1:8080/api/services >/dev/null && curl -fsS http://127.0.0.1:8080/api/health >/dev/null && curl -fsS http://127.0.0.1:8080/brief/ >/dev/null"
+  ssh_cmd "cd '$REMOTE_DIR' && docker compose ps && docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/ && docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/api/services && docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/api/health && docker compose exec -T caddy wget -q -O /dev/null http://127.0.0.1:8080/brief/"
 }
 
 main() {
