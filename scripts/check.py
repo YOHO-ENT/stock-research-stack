@@ -24,6 +24,7 @@ EXPECTED_FILES = {
     "deploy/Caddyfile",
     "docker-compose.yml",
     "docs/ip-only-vultr-deployment.md",
+    "docs/dailybrief-production-runbook.md",
     "docs/integration-map.md",
     "docs/local-start-plan.md",
     "docs/operating-model.md",
@@ -40,6 +41,7 @@ EXPECTED_FILES = {
     "scripts/check.py",
     "scripts/deploy_dailybrief_vultr.sh",
     "scripts/deploy_vultr.sh",
+    "scripts/smoke_dailybrief_vultr.py",
 }
 
 FORBIDDEN_PATTERNS = {
@@ -135,6 +137,8 @@ def check_imports() -> list[str]:
     for name in ("create_server", "list_services", "build_health_payload"):
         if not hasattr(app, name):
             return [f"research_hub.app missing {name}"]
+    if not hasattr(app, "json_health_detail"):
+        return ["research_hub.app missing json_health_detail"]
     return []
 
 

@@ -85,6 +85,8 @@ the site with temporary Basic Auth and serves DailyBrief static reports under
 `/brief/`.
 
 See [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md).
+See [DailyBrief production runbook](docs/dailybrief-production-runbook.md) for
+the report pipeline, systemd timer, smoke checks, and rollback steps.
 
 ## Contents
 
@@ -95,6 +97,7 @@ This repository contains:
 - [Ports](docs/ports.md)
 - [Local start plan](docs/local-start-plan.md)
 - [IP-only Vultr deployment](docs/ip-only-vultr-deployment.md)
+- [DailyBrief production runbook](docs/dailybrief-production-runbook.md)
 - [Operating model](docs/operating-model.md)
 - [Roadmap](docs/roadmap.md)
 - [Vultr deployment plan](docs/vultr-deployment-plan.md)
@@ -117,6 +120,12 @@ Deploy the DailyBrief systemd pipeline and publish reports into `/brief/`:
 
 ```bash
 scripts/deploy_dailybrief_vultr.sh
+```
+
+Smoke-check the DailyBrief production path:
+
+```bash
+python3 scripts/smoke_dailybrief_vultr.py
 ```
 
 Git history is used only for this orchestration layer.

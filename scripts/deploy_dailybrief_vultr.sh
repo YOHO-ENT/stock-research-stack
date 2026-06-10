@@ -234,8 +234,29 @@ seed_reports() {
   printf -v report_dir_q '%q' "$REMOTE_REPORT_DIR"
   printf -v base_url_q '%q' "$DAILYBRIEF_REPORT_BASE_URL"
 
-  COPYFILE_DISABLE=1 tar -C "${DAILYBRIEF_DIR}/daily_reports" --exclude ".DS_Store" -cf - . \
-    | ssh_cmd "install -d -m 0755 -o deploy -g deploy ${remote_dir_q}/daily_reports && tar -C ${remote_dir_q}/daily_reports -xf - && chown -R deploy:deploy ${remote_dir_q}/daily_reports"
+  python3 - "${DAILYBRIEF_DIR}/daily_reports" <<'PY' | ssh_cmd "install -d -m 0755 -o deploy -g deploy ${remote_dir_q}/daily_reports && tar -C ${remote_dir_q}/daily_reports -xf - && chown -R deploy:deploy ${remote_dir_q}/daily_reports"
+from __future__ import annotations
+
+import sys
+import tarfile
+from pathlib import Path
+
+
+source = Path(sys.argv[1]).resolve()
+skip_names = {".DS_Store"}
+
+
+def include(path: Path) -> bool:
+    return not any(part in skip_names or part.startswith("._") or part == "__MACOSX" for part in path.parts)
+
+
+with tarfile.open(fileobj=sys.stdout.buffer, mode="w|") as archive:
+    for item in sorted(source.rglob("*")):
+        relative = item.relative_to(source)
+        if not include(relative):
+            continue
+        archive.add(item, arcname=str(relative), recursive=False)
+PY
 
   ssh_cmd "runuser -u deploy -- bash -lc 'cd ${remote_dir_q} && .venv/bin/python scripts/publish_reports.py --source ${remote_dir_q}/daily_reports --target ${report_dir_q} --public-url ${base_url_q}'"
 }

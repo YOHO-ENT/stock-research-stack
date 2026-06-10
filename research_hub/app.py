@@ -184,9 +184,10 @@ def check_http(url: str, timeout_seconds: float) -> dict[str, Any]:
     try:
         with opener.open(request, timeout=timeout_seconds) as response:  # noqa: S310 - local operator URLs only
             status_code = int(getattr(response, "status", response.getcode()))
+            content_type = response.headers.get("Content-Type", "")
             # Read a small amount so servers complete the response without loading
             # large HTML pages into memory.
-            response.read(512)
+            body = response.read(4096)
     except HTTPError as exc:
         if 300 <= exc.code < 400:
             return {
@@ -203,8 +204,43 @@ def check_http(url: str, timeout_seconds: float) -> dict[str, Any]:
         raise RuntimeError(str(exc.reason)) from exc
 
     if 200 <= status_code < 400:
+        health_detail = json_health_detail(body, content_type)
+        if health_detail is not None:
+            return {"status_code": status_code, **health_detail}
         return {"status": "ok", "status_code": status_code, "message": "reachable"}
     return {"status": "down", "status_code": status_code, "message": f"HTTP {status_code}"}
+
+
+def json_health_detail(body: bytes, content_type: str) -> dict[str, str] | None:
+    sample = body.lstrip()
+    if not sample:
+        return None
+    if "json" not in content_type.lower() and not sample.startswith(b"{"):
+        return None
+    try:
+        payload = json.loads(sample.decode("utf-8"))
+    except Exception:  # noqa: BLE001 - non-JSON health endpoints are allowed
+        return None
+    if not isinstance(payload, dict):
+        return None
+    if not any(key in payload for key in ("status", "latest_report_date", "artifacts", "missing")):
+        return None
+
+    raw_status = payload.get("status")
+    status_text = str(raw_status).strip() if raw_status is not None else ""
+    result_status = "ok" if not status_text or status_text.lower() == "ok" else "down"
+
+    message_parts = []
+    latest = payload.get("latest_report_date")
+    if isinstance(latest, str) and latest.strip():
+        message_parts.append(f"latest report {latest.strip()}")
+    if status_text and status_text.lower() != "ok":
+        message_parts.append(f"health {status_text}")
+    missing = payload.get("missing")
+    if isinstance(missing, list) and missing:
+        message_parts.append("missing " + ",".join(str(item) for item in missing[:5]))
+    message = "; ".join(message_parts) or "health JSON reachable"
+    return {"status": result_status, "message": message}
 
 
 def check_tcp(url: str, timeout_seconds: float) -> dict[str, Any]:

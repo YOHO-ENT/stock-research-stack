@@ -97,6 +97,9 @@ function groupedServices() {
 
 function isUiService(service) {
   const componentType = String(service.component_type || "").toLowerCase();
+  if (service.public_url && (componentType.includes("report") || componentType.includes("static"))) {
+    return true;
+  }
   return componentType.includes("ui") || componentType.includes("dashboard") || componentType.includes("web-ui");
 }
 
